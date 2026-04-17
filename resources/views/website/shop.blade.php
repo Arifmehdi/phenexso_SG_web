@@ -106,7 +106,7 @@
                                             <a href="{{ route('productDetails', $topProduct->slug) }}">{{ $topProduct->name_en }}</a>
                                         </h3>
                                         <div class="product-price">
-                                            <span class="price">৳{{ number_format($topProduct->final_price, 2) }}</span>
+                                            <span class="price">৳{{ number_format($topProduct->selling_price - $topProduct->discount_price, 2) }}</span>
                                         </div>
                                         <div class="ratings-container">
                                             <div class="ratings-full">

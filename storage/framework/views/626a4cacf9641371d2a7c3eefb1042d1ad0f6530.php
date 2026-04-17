@@ -106,7 +106,7 @@
                                             <a href="<?php echo e(route('productDetails', $topProduct->slug)); ?>"><?php echo e($topProduct->name_en); ?></a>
                                         </h3>
                                         <div class="product-price">
-                                            <span class="price">৳<?php echo e(number_format($topProduct->final_price, 2)); ?></span>
+                                            <span class="price">৳<?php echo e(number_format($topProduct->selling_price - $topProduct->discount_price, 2)); ?></span>
                                         </div>
                                         <div class="ratings-container">
                                             <div class="ratings-full">
