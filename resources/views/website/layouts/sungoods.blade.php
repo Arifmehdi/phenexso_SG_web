@@ -37,7 +37,7 @@
     @stack('css')
 </head>
 
-<body class="home">
+<body class="@yield('body_class', 'home')">
 
     <div class="page-wrapper">
         @include('website.layouts.sungoods_header')
@@ -129,6 +129,7 @@
 
     <!-- Plugins JS File -->
     <script src="{{ asset('sungoods/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('sungoods/vendor/sticky/sticky.min.js') }}"></script>
     <script src="{{ asset('sungoods/vendor/parallax/parallax.min.js') }}"></script>
     <script src="{{ asset('sungoods/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
     <script src="{{ asset('sungoods/vendor/elevatezoom/jquery.elevatezoom.min.js') }}"></script>

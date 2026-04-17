@@ -1,10 +1,10 @@
 <footer class="footer">
     <div class="container">
-        <div class="footer-top">
+        {{--<div class="footer-top">
             <div class="row align-items-center">
                 <div class="col-lg-3">
                     <a href="{{ route('home') }}" class="logo-footer">
-                        {{-- <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $ws->footer_logo()]) }}" alt="logo-footer" width="154" height="43" /> --}}
+                        // <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $ws->footer_logo()]) }}" alt="logo-footer" width="154" height="43" />
                     </a>
                     <!-- End FooterLogo -->
                 </div>
@@ -24,7 +24,7 @@
                     <!-- End Newsletter -->
                 </div>
             </div>
-        </div>
+        </div>--}}
         <!-- End FooterTop -->
         <div class="footer-middle">
             <div class="row">
@@ -96,7 +96,7 @@
                     </div>
                     <!-- End Widget -->
                 </div>
-                <div class="col-lg-3 col-md-6">
+                {{--<div class="col-lg-3 col-md-6">
                     <div class="widget widget-instagram">
                         <h4 class="widget-title">Instagram</h4>
                         <figure class="widget-body row">
@@ -127,7 +127,7 @@
                         </figure>
                     </div>
                     <!-- End Instagram -->
-                </div>
+                </div>--}}
             </div>
         </div>
         <!-- End FooterMiddle -->
