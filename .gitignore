@@ -1,7 +1,7 @@
 /node_modules
 /public/build
 /public/hot
-
+/public/storage
 /storage/*.key
 /vendor
 .env
@@ -17,4 +17,5 @@ yarn-error.log
 /.idea
 /.vscode
 *.mp4
-
+/public/sungoods
+/public/frontend/ecommerce
