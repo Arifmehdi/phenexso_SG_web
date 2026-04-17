@@ -16,6 +16,17 @@ class ProductCategory extends Model
         return $this->image ?: 'not_found.png';
     }
 
+    /**
+     * Get the full URL for the category image.
+     */
+    public function getFiUrlAttribute()
+    {
+        if ($this->image) {
+            return asset('storage/product_categories_images/' . $this->image);
+        }
+        return asset('img/not_found.png');
+    }
+
     public function products()
     {
         return $this->belongsToMany(Product::class , 'product_cats' , 'product_category_id' , 'product_id');

@@ -12,6 +12,7 @@ class Gallery extends Model
     protected $fillable = [
         'title',
         'file_name',
+        'featured_image',
         'file_type',
         'priority',
         'thumbnail_image',
@@ -22,6 +23,14 @@ class Gallery extends Model
 
     public function fi()
     {
-        return $this->file_name ?: 'fi.jpg';
+        return $this->thumbnail_image ?: 'fi.jpg';
+    }
+
+    public function getFiUrlAttribute()
+    {
+        if ($this->featured_image) {
+            return asset('storage/galleries/' . $this->featured_image);
+        }
+        return asset('img/not_found.png');
     }
 }

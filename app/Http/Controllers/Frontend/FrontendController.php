@@ -65,7 +65,7 @@ class FrontendController extends Controller
         ->whereHas('products', function($query) { // Only categories that have products
             $query->where('active', true);
         })
-        ->select('id', 'name_en', 'name_bn', 'slug') // Select category fields
+        ->select('id', 'name_en', 'name_bn', 'slug','image') // Select category fields
         ->get();
 
         // dd($data['categories']);
@@ -85,6 +85,33 @@ class FrontendController extends Controller
         $data['newses'] = BlogPost::whereActive(true)->limit(5)->get();
         $data['sliders'] = FrontSlider::whereActive(true)
             ->select('featured_image','title','description','link')
+            ->get();
+
+        $data['brands'] = Gallery::whereActive(true)
+            ->where('file_type', 'image')
+            ->orderBy('priority', 'asc')
+            ->get();
+
+        $data['sale_products'] = Product::whereActive(true)
+            ->whereNotNull('discount_price')
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        $data['latest_products'] = Product::whereActive(true)
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        $data['best_products'] = Product::whereActive(true)
+            ->where('feature', true)
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        $data['popular_products'] = Product::whereActive(true)
+            ->orderByDesc('click_count')
+            ->limit(3)
             ->get();
 
         return view('website.index', $data);  

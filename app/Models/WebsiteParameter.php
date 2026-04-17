@@ -24,6 +24,11 @@ class WebsiteParameter extends Model
         return $this->favicon ?: 'favicon.ico';
     }
 
+    public function footer_logo()
+    {
+        return $this->footer_logo ?? $this->logo();
+    }
+
 
     public function about_img()
     {

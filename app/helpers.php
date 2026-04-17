@@ -139,4 +139,16 @@ function generateSlug($title, $seperator = '-')
   return trim($title);
 }
 
+// percentage calculation 
+// function calculateDiscountPercentage($originalPrice, $discountPrice) {
+//     if ($originalPrice <= 0) return 0;
+//     return round((($originalPrice - $discountPrice) / $originalPrice) * 100);
+// }
+
+// flat percentage calculation 
+function calculateDiscountPercentage($originalPrice, $discountAmount) {
+    if ($originalPrice <= 0) return 0;
+    return round(($discountAmount / $originalPrice) * 100);
+}
+
 
