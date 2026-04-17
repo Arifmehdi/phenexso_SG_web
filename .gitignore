@@ -17,5 +17,4 @@ yarn-error.log
 /.idea
 /.vscode
 *.mp4
-/public/sungoods
-/public/frontend/ecommerce
+
