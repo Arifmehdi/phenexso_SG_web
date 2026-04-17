@@ -558,12 +558,17 @@ $(document).on('click', '.add-to-cart-btn', function(e) {
         },
         success: function(res) {
             if(res.success) {
+                // Update cart count in header
+                $('.cart-count').text(res.cartCount);
+                // Update cart price in header
+                $('.cart-price').text('৳' + res.cartTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                // Update cart dropdown content
+                $('.dropdown-box').html(res.cartDropdownHtml);
+                // Show success message
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
                     text: res.message,
-                }).then(() => {
-                    location.reload();
                 });
             } else {
                 Swal.fire({

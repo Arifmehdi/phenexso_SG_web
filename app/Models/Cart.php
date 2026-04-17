@@ -60,7 +60,7 @@ class Cart extends Model
             ->with('product') // optional, শুধু relation access করতে চাইলে
             ->count();
     }
-
+    
     public static function totalCartPrice(): float
     {
         return self::with('product')
@@ -68,31 +68,82 @@ class Cart extends Model
             ->when(!auth()->check(), fn($q) => $q->where('session_id', session('session_id')))
             ->get()
             ->sum(function ($cart) {
-                return $cart->quantity * ($cart->product->selling_price ?? 0);
+
+                if (!$cart->product) return 0;
+
+                $product = $cart->product;
+
+                // SAME logic as quickAdd / Blade
+                if ($product->final_price < $product->selling_price) {
+                    $price = $product->selling_price - $product->discount_price;
+                } else {
+                    $price = $product->selling_price;
+                }
+
+                return $cart->quantity * $price;
             });
     }
 
+    // public static function totalCartPrice(): float
+    // {
+    //     return self::with('product')
+    //         ->when(auth()->check(), fn($q) => $q->where('user_id', auth()->id()))
+    //         ->when(!auth()->check(), fn($q) => $q->where('session_id', session('session_id')))
+    //         ->get()
+    //         ->sum(function ($cart) {
+    //             return $cart->quantity * ($cart->product->final_price ?? 0);
+    //         });
+    // }
 
     public static function totalDiscountAmount()
-    {
-        $query = self::query();
+{
+    $query = self::query();
 
-        if (Auth::check()) {
-            $query->where('user_id', Auth::id());
-        } else {
-            $query->where('session_id', Session::get('session_id'));
-        }
+    if (Auth::check()) {
+        $query->where('user_id', Auth::id());
+    } else {
+        $query->where('session_id', Session::get('session_id'));
+    }
 
-        $total_price = 0;
+    $totalDiscount = 0;
 
-        foreach ($query->get() as $cart) {
-            if ($cart->product) {
-                $total_price += $cart->product->discount * $cart->quantity;
+    foreach ($query->get() as $cart) {
+        if ($cart->product) {
+
+            $product = $cart->product;
+
+            // Apply same logic as pricing
+            if ($product->final_price < $product->selling_price) {
+                $discount = $product->selling_price - $product->final_price;
+
+                $totalDiscount += $discount * $cart->quantity;
             }
         }
-
-        return $total_price;
     }
+
+    return $totalDiscount;
+}
+
+    // public static function totalDiscountAmount()
+    // {
+    //     $query = self::query();
+
+    //     if (Auth::check()) {
+    //         $query->where('user_id', Auth::id());
+    //     } else {
+    //         $query->where('session_id', Session::get('session_id'));
+    //     }
+
+    //     $total_price = 0;
+
+    //     foreach ($query->get() as $cart) {
+    //         if ($cart->product) {
+    //             $total_price += $cart->product->discount * $cart->quantity;
+    //         }
+    //     }
+
+    //     return $total_price;
+    // }
 
 
   

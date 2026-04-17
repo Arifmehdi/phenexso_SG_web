@@ -63,7 +63,21 @@
                     <a href="{{ route('cart') }}" class="cart-toggle label-block link">
                         <div class="cart-label d-lg-show">
                             <span class="cart-name">Shopping Cart:</span>
-                            <span class="cart-price">৳{{ number_format($cartItems->sum(function($item) { return ($item->product->discount_price ?? $item->product->price) * $item->quantity; }), 2) }}</span>
+                            <span class="cart-price">
+                                ৳{{ number_format($cartItems->sum(function($item) {
+                                    if (!$item->product) return 0;
+
+                                    $product = $item->product;
+
+                                    if ($product->final_price < $product->selling_price) {
+                                        $price = $product->selling_price - $product->discount_price;
+                                    } else {
+                                        $price = $product->selling_price;
+                                    }
+
+                                    return $price * $item->quantity;
+                                }), 2) }}
+                            </span>
                         </div>
                         <i class="d-icon-bag"><span class="cart-count">{{ $cartCount }}</span></i>
                     </a>
@@ -72,42 +86,74 @@
                     <div class="dropdown-box">
                         <div class="canvas-header">
                             <h4 class="canvas-title">Shopping Cart</h4>
-                            <a href="#" class="btn btn-dark btn-link btn-icon-right btn-close">close<i
-                                    class="d-icon-arrow-right"></i><span class="sr-only">Cart</span></a>
+                            <a href="#" class="btn btn-dark btn-link btn-icon-right btn-close">
+                                close<i class="d-icon-arrow-right"></i><span class="sr-only">Cart</span>
+                            </a>
                         </div>
+
                         <div class="products scrollable">
                             @foreach($cartItems as $item)
                             <div class="product product-cart">
                                 <figure class="product-media">
                                     <a href="{{ route('productDetails', $item->product->slug) }}">
-                                        <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $item->product->fi()]) }}" alt="product" width="80"
-                                            height="88" />
+                                        <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $item->product->fi()]) }}"
+                                            alt="product" width="80" height="88" />
                                     </a>
+
                                     <a href="{{ route('cart.remove', $item->id) }}" class="btn btn-link btn-close">
-                                        <i class="fas fa-times"></i><span class="sr-only">Close</span>
+                                        <i class="fas fa-times"></i>
+                                        <span class="sr-only">Close</span>
                                     </a>
                                 </figure>
+
                                 <div class="product-detail">
-                                    <a href="{{ route('productDetails', $item->product->slug) }}" class="product-name">{{ $item->product->name_en }}</a>
+                                    <a href="{{ route('productDetails', $item->product->slug) }}" class="product-name">
+                                        {{ $item->product->name_en }}
+                                    </a>
+
                                     <div class="price-box">
                                         <span class="product-quantity">{{ $item->quantity }}</span>
-                                        <span class="product-price">৳{{ number_format($item->product->discount_price ?? $item->product->price, 2) }}</span>
+                                        <span class="product-price">
+                                            @php
+                                                $product = $item->product;
+                                                if ($product->final_price < $product->selling_price) {
+                                                    $price = $product->selling_price - $product->discount_price;
+                                                } else {
+                                                    $price = $product->selling_price;
+                                                }
+                                            @endphp
+                                            ৳{{ number_format($price, 2) }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                             @endforeach
                         </div>
-                        <!-- End of Products  -->
+
+                        <!-- Subtotal -->
                         <div class="cart-total">
                             <label>Subtotal:</label>
-                            <span class="price">৳{{ number_format($cartItems->sum(function($item) { return ($item->product->discount_price ?? $item->product->price) * $item->quantity; }), 2) }}</span>
+                            <span class="price">
+                                ৳{{ number_format(
+                                    $cartItems->sum(function($item) {
+                                        $product = $item->product;
+                                        if ($product->final_price < $product->selling_price) {
+                                            $price = $product->selling_price - $product->discount_price;
+                                        } else {
+                                            $price = $product->selling_price;
+                                        }
+                                        return $price * $item->quantity;
+                                    }),
+                                2) }}
+                            </span>
                         </div>
-                        <!-- End of Cart Total -->
+
                         <div class="cart-action">
                             <a href="{{ route('cart') }}" class="btn btn-dark btn-link">View Cart</a>
-                            <a href="{{ route('new.checkout') }}" class="btn btn-dark"><span>Go To Checkout</span></a>
+                            <a href="{{ route('new.checkout') }}" class="btn btn-dark">
+                                <span>Go To Checkout</span>
+                            </a>
                         </div>
-                        <!-- End of Cart Action -->
                     </div>
                     <!-- End Dropdown Box -->
                 </div>
