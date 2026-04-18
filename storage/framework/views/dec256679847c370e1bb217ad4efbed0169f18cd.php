@@ -139,6 +139,7 @@
     <script src="<?php echo e(asset('sungoods/js/main.min.js')); ?>"></script>
 
     <?php echo $__env->yieldPushContent('js'); ?>
+    
 </body>
 
 </html>

@@ -226,90 +226,59 @@
 @endsection
 
 @push('js')
-<!-- <script src="{{ asset('sungoods/vendor/nouislider/nouislider.min.js') }}"></script> -->
 <script>
-    $(document).ready(function() {
-        var priceRange = '{{ request()->get("price") }}';
-        var minPrice = 0;
-        var maxPrice = 10000;
-        var currentMin = 0;
-        var currentMax = 10000;
-
-        if (priceRange) {
-            var priceParts = priceRange.split('-');
-            if (priceParts.length === 2) {
-                currentMin = parseInt(priceParts[0]);
-                currentMax = parseInt(priceParts[1]);
+$(document).on('click', '.add-to-cart-btn', function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    $.ajax({
+        url: "{{ route('cart.quick.add') }}",
+        type: "GET",
+        data: {
+            id: id
+        },
+        success: function(res) {
+            if(res.success) {
+                // Update cart count in header
+                $('.cart-count').text(res.cartCount);
+                // Update cart price in header
+                $('.cart-price').text('৳' + res.cartTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
+                // Update cart dropdown content
+                $('.dropdown-box').html(res.cartDropdownHtml);
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: res.message,
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: res.message,
+                });
             }
         }
+    });
+});
 
-        var priceSlider = document.querySelector('.filter-price-slider');
-        if (priceSlider) {
-            noUiSlider.create(priceSlider, {
-                start: [currentMin, currentMax],
-                connect: true,
-                step: 50,
-                range: {
-                    'min': minPrice,
-                    'max': maxPrice
-                }
-            });
-
-            priceSlider.noUiSlider.on('update', function (values, handle) {
-                var rangeText = '৳' + Math.round(values[0]) + ' - ৳' + Math.round(values[1]);
-                $('.filter-price-range').text(rangeText);
-                $('#price-range-input').val(Math.round(values[0]) + '-' + Math.round(values[1]));
+$(document).on('click', '.add-to-wishlist', function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    $.ajax({
+        url: "{{ route('wishlist.add') }}",
+        type: "POST",
+        data: {
+            product_id: id,
+            _token: "{{ csrf_token() }}"
+        },
+        success: function(res) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: res.message,
             });
         }
-
-        // Add to cart AJAX
-        $(document).on('click', '.add-to-cart-btn', function(e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            $.ajax({
-                url: "{{ route('cart.quick.add') }}",
-                type: "GET",
-                data: { id: id },
-                success: function(res) {
-                    if(res.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: res.message,
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: res.message,
-                        });
-                    }
-                }
-            });
-        });
-
-        // Add to wishlist AJAX
-        $(document).on('click', '.add-to-wishlist', function(e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            $.ajax({
-                url: "{{ route('wishlist.add') }}",
-                type: "POST",
-                data: {
-                    product_id: id,
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(res) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: res.message,
-                    });
-                }
-            });
-        });
     });
+});
 </script>
 @endpush

@@ -139,6 +139,7 @@
     <script src="{{ asset('sungoods/js/main.min.js') }}"></script>
 
     @stack('js')
+    
 </body>
 
 </html>
