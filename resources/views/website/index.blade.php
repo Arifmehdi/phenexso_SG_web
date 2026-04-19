@@ -179,7 +179,7 @@
                         @endif
                     </div>
                     <div class="product-action-vertical">
-                        <a href="#" class="btn-product-icon btn-cart add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
+                        <a href="#" class="btn-product-icon add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
                         <a href="#" class="btn-product-icon btn-wishlist add-to-wishlist" data-id="{{ $product->id }}" title="Add to wishlist"><i
                                 class="d-icon-heart"></i></a>
                     </div>
@@ -251,7 +251,7 @@
                         @endif
                     </div>
                     <div class="product-action-vertical">
-                        <a href="#" class="btn-product-icon btn-cart add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
+                        <a href="#" class="btn-product-icon add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
                         <a href="#" class="btn-product-icon btn-wishlist add-to-wishlist" data-id="{{ $product->id }}" title="Add to wishlist"><i
                                 class="d-icon-heart"></i></a>
                     </div>
@@ -544,56 +544,3 @@
     </section>
 </div>
 @endsection
-
-@push('js')
-<script>
-$(document).on('click', '.add-to-cart-btn', function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    $.ajax({
-        url: "{{ route('cart.quick.add') }}",
-        type: "GET",
-        data: {
-            id: id
-        },
-        success: function(res) {
-            if(res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: res.message,
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: res.message,
-                });
-            }
-        }
-    });
-});
-
-$(document).on('click', '.add-to-wishlist', function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    $.ajax({
-        url: "{{ route('wishlist.add') }}",
-        type: "POST",
-        data: {
-            product_id: id,
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(res) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: res.message,
-            });
-        }
-    });
-});
-</script>
-@endpush

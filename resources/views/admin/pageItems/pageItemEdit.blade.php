@@ -74,7 +74,7 @@
                                         <div class="form-group">
                                             <label for="description_en">Description English</label>
                                             <textarea name="description_en" 
-                                                class="{{ $pageItem->editor ? 'summernote form-control' : 'form-control' }}" rows="5">{{ old('description_en', $pageItem->description_en) }}</textarea>
+                                                class="summernote form-control" rows="5">{{ old('description_en', $pageItem->description_en) }}</textarea>
                                             @error('description_en')
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror

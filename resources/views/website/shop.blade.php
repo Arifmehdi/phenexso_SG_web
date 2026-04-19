@@ -106,7 +106,7 @@
                                             <a href="{{ route('productDetails', $topProduct->slug) }}">{{ $topProduct->name_en }}</a>
                                         </h3>
                                         <div class="product-price">
-                                            <span class="price">৳{{ number_format($topProduct->final_price, 2) }}</span>
+                                            <span class="price">৳{{ number_format($topProduct->selling_price - $topProduct->discount_price, 2) }}</span>
                                         </div>
                                         <div class="ratings-container">
                                             <div class="ratings-full">
@@ -175,7 +175,7 @@
                                     @endif
                                 </div>
                                 <div class="product-action-vertical">
-                                    <a href="#" class="btn-product-icon btn-cart add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
+                                    <a href="#" class="btn-product-icon add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
                                     <a href="#" class="btn-product-icon btn-wishlist add-to-wishlist" data-id="{{ $product->id }}" title="Add to wishlist"><i class="d-icon-heart"></i></a>
                                 </div>
                                 <div class="product-action">
@@ -224,92 +224,3 @@
     </div>
 </div>
 @endsection
-
-@push('js')
-<!-- <script src="{{ asset('sungoods/vendor/nouislider/nouislider.min.js') }}"></script> -->
-<script>
-    $(document).ready(function() {
-        var priceRange = '{{ request()->get("price") }}';
-        var minPrice = 0;
-        var maxPrice = 10000;
-        var currentMin = 0;
-        var currentMax = 10000;
-
-        if (priceRange) {
-            var priceParts = priceRange.split('-');
-            if (priceParts.length === 2) {
-                currentMin = parseInt(priceParts[0]);
-                currentMax = parseInt(priceParts[1]);
-            }
-        }
-
-        var priceSlider = document.querySelector('.filter-price-slider');
-        if (priceSlider) {
-            noUiSlider.create(priceSlider, {
-                start: [currentMin, currentMax],
-                connect: true,
-                step: 50,
-                range: {
-                    'min': minPrice,
-                    'max': maxPrice
-                }
-            });
-
-            priceSlider.noUiSlider.on('update', function (values, handle) {
-                var rangeText = '৳' + Math.round(values[0]) + ' - ৳' + Math.round(values[1]);
-                $('.filter-price-range').text(rangeText);
-                $('#price-range-input').val(Math.round(values[0]) + '-' + Math.round(values[1]));
-            });
-        }
-
-        // Add to cart AJAX
-        $(document).on('click', '.add-to-cart-btn', function(e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            $.ajax({
-                url: "{{ route('cart.quick.add') }}",
-                type: "GET",
-                data: { id: id },
-                success: function(res) {
-                    if(res.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: res.message,
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: res.message,
-                        });
-                    }
-                }
-            });
-        });
-
-        // Add to wishlist AJAX
-        $(document).on('click', '.add-to-wishlist', function(e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            $.ajax({
-                url: "{{ route('wishlist.add') }}",
-                type: "POST",
-                data: {
-                    product_id: id,
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(res) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: res.message,
-                    });
-                }
-            });
-        });
-    });
-</script>
-@endpush

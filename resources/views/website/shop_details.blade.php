@@ -1,413 +1,374 @@
-@extends('website.layouts.master')
+@extends('website.layouts.sungoods')
 
-@section('title', 'Shop Details - Hubli')
+@section('title', $product->name_en . ' - Sungoods')
 
 @section('meta')
-<meta name="description"
-    content="Contact North Bengal for inquiries, product details, or business queries. Get in touch via phone, email, or visit our office.">
-<meta name="keywords" content="contact north bengal, contact us, north bengal inquiries, phone, email, office location">
-<meta property="og:title" content="Contact Us - North Bengal">
-<meta property="og:description" content="Reach North Bengal for product inquiries or business partnerships.">
-<meta property="og:image" content="{{ asset('frontend/assets/img/northbengal/contact_banner.png') }}">
-<meta property="og:type" content="website">
+<meta name="description" content="{{ Str::limit(strip_tags($product->description_en), 160) }}">
+<meta property="og:title" content="{{ $product->name_en }}">
+<meta property="og:description" content="{{ Str::limit(strip_tags($product->description_en), 160) }}">
+<meta property="og:image" content="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}">
 @endsection
+
+@push('css')
+<style>
+    .breadcrumb {
+        display: flex !important;
+        flex-wrap: wrap;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+    .breadcrumb li {
+        display: flex;
+        align-items: center;
+    }
+    .breadcrumb li a {
+        display: inline-flex;
+        align-items: center;
+    }
+    .breadcrumb .delimiter {
+        margin: 0 10px;
+        color: #999;
+    }
+    .product-navigation {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    /* Disable hover effects on product details */
+    .product-details, .product-single .col-md-6 {
+        transform: none !important;
+        transition: none !important;
+    }
+    .product-details:hover {
+        transform: none !important;
+    }
+    .product-nav {
+        display: none !important; /* Hide prev/next product for now as logic not provided */
+    }
+</style>
+@endpush
+
 @section('content')
-    <!-- BREADCRUMB AREA START -->
-    <x-breadcrumb title="Shop" pageName="Shop" bgImage="frontend/img/bg/9.jpg" />
-    <!-- BREADCRUMB AREA END -->
-
-<!-- SHOP DETAILS AREA START -->
-<div class="ltn__shop-details-area pb-85">
+<div class="page-content mb-10 pb-6">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-12">
-                <div class="ltn__shop-details-inner mb-60">
+        <div class="product product-single row mb-7">
+            <div class="col-md-6">
+                <div class="product-gallery pg-vertical">
+                    <div class="product-single-carousel owl-carousel owl-theme owl-nav-inner row cols-1 gutter-no"
+                        data-owl-options="{
+                            'nav': true,
+                            'dots': false,
+                            'loop': false,
+                            'autoHeight': false
+                        }">
+                        <figure class="product-image">
+                            <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
+                                data-zoom-image="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
+                                alt="{{ $product->name_en }}" width="800" height="900">
+                        </figure>
+                        @foreach($product->media as $media)
+                        <figure class="product-image">
+                            <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}"
+                                data-zoom-image="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}"
+                                alt="{{ $product->name_en }}" width="800" height="900">
+                        </figure>
+                        @endforeach
+                    </div>
+                    <div class="product-thumbs-wrap">
+                        <div class="product-thumbs">
+                            <div class="product-thumb active">
+                                <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
+                                    alt="product thumbnail" width="109" height="122">
+                            </div>
+                            @foreach($product->media as $media)
+                            <div class="product-thumb">
+                                <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}"
+                                    alt="product thumbnail" width="109" height="122">
+                            </div>
+                            @endforeach
+                        </div>
+                        <button class="thumb-up disabled"><i class="fas fa-chevron-left"></i></button>
+                        <button class="thumb-down disabled"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    @if($product->final_price < $product->selling_price)
+                    <div class="product-label-group">
+                        <label class="product-label label-sale">{{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off</label>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="product-details">
+                    <div class="product-navigation">
+                        <ul class="breadcrumb breadcrumb-lg">
+                            <li><a href="{{ route('home') }}"><i class="d-icon-home"></i></a></li>
+                            <li class="delimiter">/</li>
+                            <li><a href="{{ route('shop') }}" class="active">Products</a></li>
+                            <li class="delimiter">/</li>
+                            <li>Detail</li>
+                        </ul>
+                    </div>
+
+                    <h1 class="product-name">{{ $product->name_en }}</h1>
+                    <div class="product-meta">
+                        SKU: <span class="product-sku">{{ $product->sku ?? 'N/A' }}</span>
+                        CATEGORIES: <span class="product-brand">
+                            @foreach ($product->categories as $cat)
+                                <a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a>@if(!$loop->last), @endif
+                            @endforeach
+                        </span>
+                    </div>
+                    <div class="product-price">
+                        <span class="price">৳{{ number_format($product->selling_price - $product->discount_price, 2) }}</span>
+                        @if($product->discount_price > 0)
+                            <del class="old-price">৳{{ number_format($product->selling_price, 2) }}</del>
+                        @endif
+                    </div>
+                    <div class="ratings-container">
+                        <div class="ratings-full">
+                            <span class="ratings" style="width:80%"></span>
+                            <span class="tooltiptext tooltip-top"></span>
+                        </div>
+                        <a href="#product-tab-reviews" class="link-to-tab rating-reviews">( 0 reviews )</a>
+                    </div>
+                    <p class="product-short-desc">
+                        {!! Str::limit(strip_tags($product->description_en), 200) !!}
+                    </p>
+
+                    <hr class="product-divider">
+
+                    <div class="product-form product-qty">
+                        <div class="product-form-group">
+                            <div class="input-group mr-2">
+                                <button class="quantity-minus d-icon-minus"></button>
+                                <input class="quantity form-control" type="number" min="1" max="1000000" value="1">
+                                <button class="quantity-plus d-icon-plus"></button>
+                            </div>
+                            <button class="btn-product text-normal ls-normal font-weight-semi-bold add-to-cart-btn" 
+                                data-id="{{ $product->id }}">
+                                <i class="d-icon-bag"></i>Add to Cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="product-divider mb-3">
+
+                    <div class="product-footer">
+                        <div class="social-links mr-4">
+                            <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                            <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                            <a href="#" class="social-link social-pinterest fab fa-pinterest-p"></a>
+                        </div>
+                        <span class="divider d-lg-show"></span>
+                        <a href="#" class="btn-product btn-wishlist mr-6 add-to-wishlist" data-id="{{ $product->id }}">
+                            <i class="d-icon-heart"></i>Add to wishlist</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab tab-nav-simple product-tabs">
+            <ul class="nav nav-tabs justify-content-center" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#product-tab-description">Description</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#product-tab-reviews">Reviews (0)</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active in" id="product-tab-description">
+                    <div class="row mt-6">
+                        <div class="col-md-12">
+                            {!! $product->description_en !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="product-tab-reviews">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="ltn__shop-details-img-gallery">
-                                <div class="ltn__shop-details-large-img">
-                                 @forelse($product->media as $media)
-                                    @if($media->file_name)
-                                        <div class="single-large-img">
-                                            <a href="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}" data-rel="lightcase:myCollection">
-                                                <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}" alt="{{$product->name_en}}">
-                                            </a>
+                        <div class="col-lg-4 mb-6">
+                            <div class="avg-rating-container">
+                                <mark>0.0</mark>
+                                <div class="avg-rating">
+                                    <span class="avg-rating-title">Average Rating</span>
+                                    <div class="ratings-container mb-0">
+                                        <div class="ratings-full">
+                                            <span class="ratings" style="width:0%"></span>
+                                            <span class="tooltiptext tooltip-top"></span>
                                         </div>
-                                    @endif
-                                    @empty 
-                                        <div class="single-large-img">
-                                            <a href="{{ route('imagecache', ['template' => 'pnism', 'filename' => $product->fi()]) }}" data-rel="lightcase:myCollection">
-                                                <img src="{{ route('imagecache', ['template' => 'pnism', 'filename' => $product->fi()]) }}" alt="{{ $product->name_en }}">
-                                            </a>
-                                        </div>
-                                @endforelse
-
-                                </div>
-                                <div class="ltn__shop-details-small-img slick-arrow-2">
-                                 @forelse($product->media as $media)
-                                    @if($media->file_name)
-                                    <div class="single-small-img">
-                                        <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}" alt="{{$product->name_en}}">
-                                    </div>
-                                    @endif
-                                    @empty 
-                                    <div class="single-small-img">
-                                        <img src="{{ route('imagecache', ['template' => 'pnism', 'filename' => $product->fi()]) }}" alt="{{$product->name_en}}">
-                                    </div>
-                                @endforelse
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="modal-product-info shop-details-info pl-0">
-                                <div class="product-ratting">
-                                    <ul>
-                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                        <li><a href="#"><i class="fas fa-star-half-alt"></i></a></li>
-                                        <li><a href="#"><i class="far fa-star"></i></a></li>
-                                        <li class="review-total"> <a href="#"> ( 0 Reviews )</a></li>
-                                    </ul>
-                                </div>
-                                <h3>{{ $product->name_en }}</h3>
-                                <div class="product-price">
-                                    <span>{{ number_format($product->final_price, 2) }} ৳</span> 
-                                    @if($product->discount > 0.00)
-                                        <small style="font-size: 8px !important;"><del>{{ number_format($product->price, 2) }} ৳</del></small>
-                                    @endif
-                                </div>
-                                <div class="modal-product-meta ltn__product-details-menu-1">
-                                    <ul>
-                                        <li>
-                                            <strong>Stock:</strong>
-                                            <span>
-                                                @if($product->stock > 0)
-                                                <span class="badge bg-success px-3 py-2">
-                                                    In Stock
-                                                </span>
-                                                @else
-                                                <span class="badge Out of Stock px-3 py-2">
-                                                    Out of  Stock
-                                                </span>
-                                                @endif 
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="modal-product-meta ltn__product-details-menu-1">
-                                    <ul>
-                                        <li>
-                                            <strong>Categories:</strong>
-                                            <span>
-                                                @foreach ($product->categories as $key => $cat)
-                                                    <a href="#">{{ $cat->name_en }}</a>
-                                                @if(!$loop->last), @endif
-                                                @endforeach
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="ltn__product-details-menu-2">
-                                    <ul>
-                                        <li>
-                                            <div class="cart-plus-minus">
-                                                <input type="text" value="02" name="qtybutton"
-                                                    class="cart-plus-minus-box">
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <a href="#" class="theme-btn-1 btn btn-effect-1" title="Add to Cart"
-                                                data-bs-toggle="modal" data-bs-target="#add_to_cart_modal">
-                                                <i class="fas fa-shopping-cart"></i>
-                                                {{--@include('frontend.home.includes.productCartItem') --}}
-                                                <span>ADD TO CART</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="ltn__product-details-menu-3">
-                                    <ul>
-                                        <li>
-                                            <a href="#" class="" title="Wishlist" data-bs-toggle="modal"
-                                                data-bs-target="#liton_wishlist_modal">
-                                                <i class="far fa-heart"></i>
-                                                <span>Add to Wishlist</span>
-                                            </a>
-                                        </li>
-                                        {{--<li>
-                                            <a href="#" class="" title="Compare" data-bs-toggle="modal"
-                                                data-bs-target="#quick_view_modal">
-                                                <i class="fas fa-exchange-alt"></i>
-                                                <span>Compare</span>
-                                            </a>
-                                        </li>--}}
-                                    </ul>
-                                </div>
-                                <hr>
-                                {{--<div class="ltn__social-media">
-                                    <ul>
-                                        <li>Share:</li>
-                                        <li><a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="#" title="Twitter"><i class="fab fa-twitter"></i></a></li>
-                                        <li><a href="#" title="Linkedin"><i class="fab fa-linkedin"></i></a></li>
-                                        <li><a href="#" title="Instagram"><i class="fab fa-instagram"></i></a></li>
-
-                                    </ul>
-                                </div>
-                                <hr>
-                                <div class="ltn__safe-checkout">
-                                    <h5>Guaranteed Safe Checkout</h5>
-                                    <img src="{{ asset('frontend/img/icons/payment-2.png') }}" alt="Payment Image">
-                                </div>--}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Shop Tab Start -->
-                <div class="ltn__shop-details-tab-inner ltn__shop-details-tab-inner-2">
-                    <div class="ltn__shop-details-tab-menu">
-                        <div class="nav">
-                            <a class="active show" data-bs-toggle="tab" href="#liton_tab_details_1_1">Description</a>
-                            <a data-bs-toggle="tab" href="#liton_tab_details_1_2" class="">Reviews (0)</a>
-                        </div>
-                    </div>
-                    <div class="tab-content">
-                        <div class="tab-pane fade active show" id="liton_tab_details_1_1">
-                            <div class="ltn__shop-details-tab-content-inner">
-                                <h4 class="title-2">Lorem ipsum dolor sit amet elit.</h4>
-                                <p>{!! $product->description_en !!}</p>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="liton_tab_details_1_2">
-                            <div class="ltn__shop-details-tab-content-inner">
-                                <h4 class="title-2">Customer Reviews</h4>
-                                <div class="product-ratting">
-                                    <ul>
-                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                        <li><a href="#"><i class="fas fa-star-half-alt"></i></a></li>
-                                        <li><a href="#"><i class="far fa-star"></i></a></li>
-                                        <li class="review-total"> <a href="#"> ( 0 Reviews )</a></li>
-                                    </ul>
-                                </div>
-                                <hr>
-                                <!-- comment-area -->
-                                <div class="ltn__comment-area mb-30">
-                                    <div class="ltn__comment-inner">
-                                        <ul>
-                                            <li>
-                                                <div class="ltn__comment-item clearfix">
-                                                    <div class="ltn__commenter-img">
-                                                        <img src="{{ asset('frontend/img/testimonial/1.jpg') }}" alt="Image">
-                                                    </div>
-                                                    <div class="ltn__commenter-comment">
-                                                        <h6><a href="#">Adam Smit</a></h6>
-                                                        <div class="product-ratting">
-                                                            <ul>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                                </li>
-                                                                <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                            </ul>
-                                                        </div>
-                                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                            Doloribus, omnis fugit corporis iste magnam ratione.</p>
-                                                        <span class="ltn__comment-reply-btn">September 3, 2020</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="ltn__comment-item clearfix">
-                                                    <div class="ltn__commenter-img">
-                                                        <img src="{{ asset('frontend/img/testimonial/3.jpg') }}" alt="Image">
-                                                    </div>
-                                                    <div class="ltn__commenter-comment">
-                                                        <h6><a href="#">Adam Smit</a></h6>
-                                                        <div class="product-ratting">
-                                                            <ul>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                                </li>
-                                                                <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                            </ul>
-                                                        </div>
-                                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                            Doloribus, omnis fugit corporis iste magnam ratione.</p>
-                                                        <span class="ltn__comment-reply-btn">September 2, 2020</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div class="ltn__comment-item clearfix">
-                                                    <div class="ltn__commenter-img">
-                                                        <img src="{{ asset('frontend/img/testimonial/2.jpg') }}" alt="Image">
-                                                    </div>
-                                                    <div class="ltn__commenter-comment">
-                                                        <h6><a href="#">Adam Smit</a></h6>
-                                                        <div class="product-ratting">
-                                                            <ul>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                                <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                                </li>
-                                                                <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                            </ul>
-                                                        </div>
-                                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                            Doloribus, omnis fugit corporis iste magnam ratione.</p>
-                                                        <span class="ltn__comment-reply-btn">September 2, 2020</span>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </ul>
+                                        <span class="rating-reviews">( 0 Reviews )</span>
                                     </div>
                                 </div>
-                                <!-- comment-reply -->
-                                <div class="ltn__comment-reply-area ltn__form-box mb-30">
-                                    <form action="#">
-                                        <h4 class="title-2">Add a Review</h4>
-                                        <div class="mb-30">
-                                            <div class="add-a-review">
-                                                <h6>Your Ratings:</h6>
-                                                <div class="product-ratting">
-                                                    <ul>
-                                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                        <li><a href="#"><i class="fas fa-star-half-alt"></i></a></li>
-                                                        <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="input-item input-item-textarea ltn__custom-icon">
-                                            <textarea placeholder="Type your comments...."></textarea>
-                                        </div>
-                                        <div class="input-item input-item-name ltn__custom-icon">
-                                            <input type="text" placeholder="Type your name....">
-                                        </div>
-                                        <div class="input-item input-item-email ltn__custom-icon">
-                                            <input type="email" placeholder="Type your email....">
-                                        </div>
-                                        <div class="input-item input-item-website ltn__custom-icon">
-                                            <input type="text" name="website" placeholder="Type your website....">
-                                        </div>
-                                        <label class="mb-0"><input type="checkbox" name="agree"> Save my name, email,
-                                            and website in this browser for the next time I comment.</label>
-                                        <div class="btn-wrapper">
-                                            <button class="btn theme-btn-1 btn-effect-1 text-uppercase"
-                                                type="submit">Submit</button>
-                                        </div>
-                                    </form>
-                                </div>
                             </div>
                         </div>
+                        <div class="col-lg-8 mb-6">
+                            {{-- Add Review Form logic here --}}
+                        </div>
                     </div>
-                </div>
-                <!-- Shop Tab End -->
-            </div>
-            <div class="col-lg-4">
-                <aside class="sidebar ltn__shop-sidebar ltn__right-sidebar">
-                    <!-- Top Rated Product Widget -->
-                    <div class="widget ltn__top-rated-product-widget">
-                        <h4 class="ltn__widget-title ltn__widget-title-border">Top Rated Product</h4>
-                            @include('website.layouts.top_products', [ 'topClickedProducts' => $topClickedProducts ])
-
-                    </div>
-                    <!-- Banner Widget -->
-                    <div class="widget ltn__banner-widget">
-                        <a href="shop.html"><img src="img/banner/2.jpg" alt="#"></a>
-                    </div>
-                </aside>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- SHOP DETAILS AREA END -->
-
-<!-- PRODUCT SLIDER AREA START -->
-<div class="ltn__product-slider-area ltn__product-gutter pb-70">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title-area ltn__section-title-2">
-                    <!-- <h6 class="section-subtitle ltn__secondary-color">// cars</h6> -->
-                    <h1 class="section-title">Related Products<span>.</span></h1>
                 </div>
             </div>
         </div>
-        <div class="row ltn__related-product-slider-one-active slick-arrow-1">
-            @forelse($relatedProducts as $product)
-            <!-- ltn__product-item -->
-            <div class="col-lg-12">
-                <div class="ltn__product-item ltn__product-item-3 text-center">
-                    <div class="product-img">
-                        <a href="{{ route('productDetails', $product->slug) }}">
-                            <img src="{{ route('imagecache', ['template' => 'pnism', 'filename' => $product->fi()]) }}" alt="{{ $product->name_en }}"></a>
-                        {{--<div class="product-badge">
-                            <ul>
-                                <li class="sale-badge">New</li>
-                            </ul>
-                        </div>--}}
-                        <div class="product-hover-action">
-                            <ul>
-                                <li>
-                                    <a href="#" title="Quick View" data-bs-toggle="modal"
-                                        data-bs-target="#quick_view_modal">
-                                        <i class="far fa-eye"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" title="Add to Cart" data-bs-toggle="modal"
-                                        data-bs-target="#add_to_cart_modal">
-                                        <i class="fas fa-shopping-cart"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" title="Wishlist" data-bs-toggle="modal"
-                                        data-bs-target="#liton_wishlist_modal">
-                                        <i class="far fa-heart"></i></a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <div class="product-ratting">
-                            <ul>
-                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                <li><a href="#"><i class="fas fa-star-half-alt"></i></a></li>
-                                <li><a href="#"><i class="far fa-star"></i></a></li>
-                            </ul>
-                        </div>
-                        <h2 class="product-title"><a href="{{ route('productDetails', $product->slug) }}">{{ $product->name_en }}</a></h2>
-                        <div class="product-price">
-                            <span>{{ number_format($product->final_price, 2) }} ৳</span> 
-                            @if($product->discount > 0.00)
-                                <small style="font-size: 8px !important;"><del>{{ number_format($product->price, 2) }} ৳</del></small>
+
+        @if($relatedProducts->count() > 0)
+        <section class="pt-3 mt-10">
+            <h2 class="title justify-content-center">Related Products</h2>
+
+            <div class="owl-carousel owl-theme owl-nav-full row cols-2 cols-md-3 cols-lg-4"
+                data-owl-options="{
+                'items': 5,
+                'nav': false,
+                'loop': false,
+                'dots': true,
+                'margin': 20,
+                'responsive': {
+                    '0': {
+                        'items': 2
+                    },
+                    '768': {
+                        'items': 3
+                    },
+                    '992': {
+                        'items': 4,
+                        'dots': false,
+                        'nav': true
+                    }
+                }
+            }">
+                @foreach($relatedProducts as $related)
+                <div class="product">
+                    <figure class="product-media">
+                        <a href="{{ route('productDetails', $related->slug) }}">
+                            <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $related->fi()]) }}" alt="product" width="280" height="315">
+                        </a>
+                        <div class="product-label-group">
+                            @if($related->final_price < $related->selling_price)
+                            <label class="product-label label-sale">{{ calculateDiscountPercentage($related->selling_price, $related->discount_price) }}% off</label>
                             @endif
                         </div>
+                        <div class="product-action-vertical">
+                            <a href="#" class="btn-product-icon add-to-cart-btn" title="Add to cart" data-id="{{ $related->id }}" >
+                                <i class="d-icon-bag"></i></a>
+                            <a href="#" class="btn-product-icon add-to-wishlist" title="Add to wishlist" data-id="{{ $related->id }}">
+                                <i class="d-icon-heart"></i></a>
+                        </div>
+                        <div class="product-action">
+                            <a href="{{ route('productDetails', $related->slug) }}" class="btn-product" title="Quick View">View Details</a>
+                        </div>
+                    </figure>
+                    <div class="product-details">
+                        <div class="product-cat">
+                            @foreach($related->categories as $cat)
+                                <a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a>@if(!$loop->last), @endif
+                            @endforeach
+                        </div>
+                        <h3 class="product-name">
+                            <a href="{{ route('productDetails', $related->slug) }}">{{ $related->name_en }}</a>
+                        </h3>
+                        <div class="product-price">
+                            <span class="price">৳{{ number_format($related->selling_price - $related->discount_price, 2) }}</span>
+                            @if($related->discount_price > 0)
+                                <del class="old-price">৳{{ number_format($related->selling_price, 2) }}</del>
+                            @endif
+                        </div>
+                        <div class="ratings-container">
+                            <div class="ratings-full">
+                                <span class="ratings" style="width:{{ ($related->averageRating() / 5) * 100 }}%"></span>
+                                <span class="tooltiptext tooltip-top"></span>
+                            </div>
+                            <a href="{{ route('productDetails', $related->slug) }}" class="rating-reviews">( {{ $related->reviews_count ?? 0 }} reviews )</a>
+                        </div>
                     </div>
                 </div>
+                @endforeach
             </div>
-            @empty 
-            <p>There have no related products</p>
-            @endforelse
-            <!--  -->
-        </div>
+        </section>
+        @endif
     </div>
 </div>
-<!-- PRODUCT SLIDER AREA END -->
-
-<!-- FEATURE AREA START ( Feature - 3) -->
-<x-footer-feature />
-<!-- FEATURE AREA END -->
 @endsection
+
+@push('js')
+<script>
+    $(document).ready(function() {
+        // // Quantity buttons logic
+        // $(document).on('click', '.quantity-plus', function() {
+        //     let $input = $(this).closest('.input-group').find('input.quantity');
+        //     $input.val(parseInt($input.val()) + 1);
+        // });
+
+        // $(document).on('click', '.quantity-minus', function() {
+        //     let $input = $(this).closest('.input-group').find('input.quantity');
+        //     if (parseInt($input.val()) > 1) {
+        //         $input.val(parseInt($input.val()) - 1);
+        //     }
+        // });
+
+        function initZoomOnActive() {
+            if ($.fn.elevateZoom) {
+                var $activeItem = $('.product-single-carousel .owl-item.active');
+                
+                // If owl hasn't fully initialized yet, target the first item
+                if (!$activeItem.length) {
+                    $activeItem = $('.product-single-carousel .owl-item').first();
+                }
+                
+                var $activeImg = $activeItem.find('img');
+                
+                if ($activeImg.length && $activeImg.attr('src')) {
+                    // Thorough cleanup
+                    $('.zoomContainer').remove();
+                    $('.product-single-carousel img').each(function() {
+                        var $img = $(this);
+                        if ($img.data('elevateZoom')) {
+                            $img.data('elevateZoom').destroy();
+                        }
+                        $img.removeData('elevateZoom');
+                        $img.removeData('zoomImage');
+                    });
+
+                    var zoomOptions = (typeof Riode !== 'undefined' && Riode.defaults && Riode.defaults.zoomImage) 
+                        ? $.extend({}, Riode.defaults.zoomImage) 
+                        : { responsive: true, zoomType: 'inner', cursor: 'crosshair' };
+                    
+                    zoomOptions.zoomType = 'inner'; 
+                    
+                    // Re-initialize
+                    $activeImg.elevateZoom(zoomOptions);
+                }
+            }
+        }
+
+        // Initial load with multiple strategies
+        $(window).on('load', function() {
+            initZoomOnActive();
+        });
+
+        // Use imagesLoaded for reliability
+        $('.product-single-carousel').imagesLoaded(function() {
+            initZoomOnActive();
+        });
+
+        // Retry mechanism for slow loading
+        var initRetryCount = 0;
+        var initRetry = setInterval(function() {
+            initZoomOnActive();
+            initRetryCount++;
+            if (initRetryCount >= 5) clearInterval(initRetry);
+        }, 1000);
+
+        $('.product-single-carousel').on('translated.owl.carousel', function() {
+            initZoomOnActive();
+        });
+
+        // Also handle thumbnail clicks if they don't trigger translated event immediately
+        $(document).on('click', '.product-thumb', function() {
+            var index = $(this).index();
+            $('.product-single-carousel').trigger('to.owl.carousel', [index, 300]);
+            setTimeout(initZoomOnActive, 400);
+        });
+    });
+</script>
+@endpush
