@@ -768,7 +768,6 @@ class FrontendController extends Controller
             'topClickedProducts'
         ));
     }
-
     // public function productDetails(Request $request, $slug)
     // {
     //     $product = Product::where('slug', $slug)->with('categories', 'reviews', 'media')->first();
@@ -1110,76 +1109,78 @@ class FrontendController extends Controller
         ]);
     }
 
-
     private function generateCartDropdownHtml($cartItems)
-{
-    $html = '';
+    {
+        $html = '';
 
-    if ($cartItems->isEmpty()) {
-        $html = '<div class="products scrollable"><p class="text-center">Your cart is empty</p></div>';
-        $html .= '<div class="cart-total"><label>Subtotal:</label><span class="price">৳0.00</span></div>';
-        $html .= '<div class="cart-action">
+        if ($cartItems->isEmpty()) {
+            $html = '<div class="products scrollable"><p class="text-center">Your cart is empty</p></div>';
+            $html .= '<div class="cart-total"><label>Subtotal:</label><span class="price">৳0.00</span></div>';
+            $html .= '<div class="cart-action">
                     <a href="'.route('cart').'" class="btn btn-dark btn-link">View Cart</a>
                     <a href="'.route('new.checkout').'" class="btn btn-dark"><span>Go To Checkout</span></a>
                   </div>';
+
+            return $html;
+        }
+
+        $html .= '<div class="products scrollable">';
+
+        $subtotal = 0;
+
+        foreach ($cartItems as $item) {
+
+            if (! $item->product) {
+                continue;
+            }
+
+            $product = $item->product;
+
+            // ✅ APPLY FLAT DISCOUNT HERE
+            $selling = $product->selling_price ?? 0;
+            $discount = $product->discount_price ?? 0;
+            $price = max(0, $selling - $discount);
+
+            $lineTotal = $price * $item->quantity;
+            $subtotal += $lineTotal;
+
+            $html .= '<div class="product product-cart">';
+            $html .= '<figure class="product-media">';
+            $html .= '<a href="'.route('productDetails', $product->slug).'">';
+            $html .= '<img src="'.route('imagecache', ['template' => 'original', 'filename' => $product->fi()]).'" alt="product" width="80" height="88" />';
+            $html .= '</a>';
+            $html .= '<a href="'.route('cart.remove', $item->id).'" class="btn btn-link btn-close">';
+            $html .= '<i class="fas fa-times"></i><span class="sr-only">Close</span>';
+            $html .= '</a>';
+            $html .= '</figure>';
+
+            $html .= '<div class="product-detail">';
+            $html .= '<a href="'.route('productDetails', $product->slug).'" class="product-name">'.$product->name_en.'</a>';
+
+            $html .= '<div class="price-box">';
+            $html .= '<span class="product-quantity">'.$item->quantity.'</span>';
+            $html .= '<span class="product-price">৳'.number_format($price, 2).'</span>';
+            $html .= '</div>';
+
+            $html .= '</div>';
+            $html .= '</div>';
+        }
+
+        $html .= '</div>';
+
+        // ✅ Correct subtotal (already calculated above)
+        $html .= '<div class="cart-total">';
+        $html .= '<label>Subtotal:</label>';
+        $html .= '<span class="price">৳'.number_format($subtotal, 2).'</span>';
+        $html .= '</div>';
+
+        $html .= '<div class="cart-action">';
+        $html .= '<a href="'.route('cart').'" class="btn btn-dark btn-link">View Cart</a>';
+        $html .= '<a href="'.route('new.checkout').'" class="btn btn-dark"><span>Go To Checkout</span></a>';
+        $html .= '</div>';
+
         return $html;
     }
-
-    $html .= '<div class="products scrollable">';
-
-    $subtotal = 0;
-
-    foreach ($cartItems as $item) {
-
-        if (!$item->product) continue;
-
-        $product = $item->product;
-
-        // ✅ APPLY FLAT DISCOUNT HERE
-        $selling = $product->selling_price ?? 0;
-        $discount = $product->discount_price ?? 0;
-        $price = max(0, $selling - $discount);
-
-        $lineTotal = $price * $item->quantity;
-        $subtotal += $lineTotal;
-
-        $html .= '<div class="product product-cart">';
-        $html .= '<figure class="product-media">';
-        $html .= '<a href="'.route('productDetails', $product->slug).'">';
-        $html .= '<img src="'.route('imagecache', ['template' => 'original', 'filename' => $product->fi()]).'" alt="product" width="80" height="88" />';
-        $html .= '</a>';
-        $html .= '<a href="'.route('cart.remove', $item->id).'" class="btn btn-link btn-close">';
-        $html .= '<i class="fas fa-times"></i><span class="sr-only">Close</span>';
-        $html .= '</a>';
-        $html .= '</figure>';
-
-        $html .= '<div class="product-detail">';
-        $html .= '<a href="'.route('productDetails', $product->slug).'" class="product-name">'.$product->name_en.'</a>';
-
-        $html .= '<div class="price-box">';
-        $html .= '<span class="product-quantity">'.$item->quantity.'</span>';
-        $html .= '<span class="product-price">৳'.number_format($price, 2).'</span>';
-        $html .= '</div>';
-
-        $html .= '</div>';
-        $html .= '</div>';
-    }
-
-    $html .= '</div>';
-
-    // ✅ Correct subtotal (already calculated above)
-    $html .= '<div class="cart-total">';
-    $html .= '<label>Subtotal:</label>';
-    $html .= '<span class="price">৳'.number_format($subtotal, 2).'</span>';
-    $html .= '</div>';
-
-    $html .= '<div class="cart-action">';
-    $html .= '<a href="'.route('cart').'" class="btn btn-dark btn-link">View Cart</a>';
-    $html .= '<a href="'.route('new.checkout').'" class="btn btn-dark"><span>Go To Checkout</span></a>';
-    $html .= '</div>';
-
-    return $html;
-}
 
     // private function generateCartDropdownHtml($cartItems)
     // {

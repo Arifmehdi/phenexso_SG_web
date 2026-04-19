@@ -416,4 +416,6 @@ $(document).on("click", ".qtybutton", function () {
     $button.parent().find("input").val(newVal);
 });
 </script>
+
+
 <?php /**PATH D:\laragon\laragon\www\sungoods\resources\views/website/layouts/footer.blade.php ENDPATH**/ ?>
