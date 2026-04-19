@@ -130,7 +130,7 @@
                                 <input class="quantity form-control" type="number" min="1" max="1000000" value="1">
                                 <button class="quantity-plus d-icon-plus"></button>
                             </div>
-                            <button class="btn-product btn-cart text-normal ls-normal font-weight-semi-bold add-to-cart-btn" 
+                            <button class="btn-product text-normal ls-normal font-weight-semi-bold add-to-cart-btn" 
                                 data-id="{{ $product->id }}">
                                 <i class="d-icon-bag"></i>Add to Cart
                             </button>

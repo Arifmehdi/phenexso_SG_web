@@ -179,7 +179,7 @@
                         <?php endif; ?>
                     </div>
                     <div class="product-action-vertical">
-                        <a href="#" class="btn-product-icon btn-cart add-to-cart-btn" data-id="<?php echo e($product->id); ?>" title="Add to cart"><i class="d-icon-bag"></i></a>
+                        <a href="#" class="btn-product-icon add-to-cart-btn" data-id="<?php echo e($product->id); ?>" title="Add to cart"><i class="d-icon-bag"></i></a>
                         <a href="#" class="btn-product-icon btn-wishlist add-to-wishlist" data-id="<?php echo e($product->id); ?>" title="Add to wishlist"><i
                                 class="d-icon-heart"></i></a>
                     </div>
