@@ -37,6 +37,17 @@
         justify-content: space-between;
         flex-wrap: wrap;
     }
+    /* Disable hover effects on product details */
+    .product-details, .product-single .col-md-6 {
+        transform: none !important;
+        transition: none !important;
+    }
+    .product-details:hover {
+        transform: none !important;
+    }
+    .product-nav {
+        display: none !important; /* Hide prev/next product for now as logic not provided */
+    }
 </style>
 @endpush
 
@@ -44,9 +55,15 @@
 <div class="page-content mb-10 pb-6">
     <div class="container">
         <div class="product product-single row mb-7">
-            <div class="col-md-6 sticky-sidebar-wrapper">
-                <div class="product-gallery pg-vertical sticky-sidebar">
-                    <div class="product-single-carousel owl-carousel owl-theme owl-nav-inner row cols-1 gutter-no">
+            <div class="col-md-6">
+                <div class="product-gallery pg-vertical">
+                    <div class="product-single-carousel owl-carousel owl-theme owl-nav-inner row cols-1 gutter-no"
+                        data-owl-options="{
+                            'nav': true,
+                            'dots': false,
+                            'loop': false,
+                            'autoHeight': false
+                        }">
                         <figure class="product-image">
                             <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
                                 data-zoom-image="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
@@ -115,7 +132,7 @@
                             <span class="ratings" style="width:80%"></span>
                             <span class="tooltiptext tooltip-top"></span>
                         </div>
-                        <a href="#" class="rating-reviews">( 0 reviews )</a>
+                        <a href="#product-tab-reviews" class="link-to-tab rating-reviews">( 0 reviews )</a>
                     </div>
                     <p class="product-short-desc">
                         {!! Str::limit(strip_tags($product->description_en), 200) !!}
@@ -226,11 +243,19 @@
                         <a href="{{ route('productDetails', $related->slug) }}">
                             <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $related->fi()]) }}" alt="product" width="280" height="315">
                         </a>
+                        <div class="product-label-group">
+                            @if($related->final_price < $related->selling_price)
+                            <label class="product-label label-sale">{{ calculateDiscountPercentage($related->selling_price, $related->discount_price) }}% off</label>
+                            @endif
+                        </div>
                         <div class="product-action-vertical">
                             <a href="#" class="btn-product-icon add-to-cart-btn" title="Add to cart" data-id="{{ $related->id }}" >
                                 <i class="d-icon-bag"></i></a>
                             <a href="#" class="btn-product-icon add-to-wishlist" title="Add to wishlist" data-id="{{ $related->id }}">
                                 <i class="d-icon-heart"></i></a>
+                        </div>
+                        <div class="product-action">
+                            <a href="{{ route('productDetails', $related->slug) }}" class="btn-product" title="Quick View">View Details</a>
                         </div>
                     </figure>
                     <div class="product-details">
@@ -248,6 +273,13 @@
                                 <del class="old-price">৳{{ number_format($related->selling_price, 2) }}</del>
                             @endif
                         </div>
+                        <div class="ratings-container">
+                            <div class="ratings-full">
+                                <span class="ratings" style="width:{{ ($related->averageRating() / 5) * 100 }}%"></span>
+                                <span class="tooltiptext tooltip-top"></span>
+                            </div>
+                            <a href="{{ route('productDetails', $related->slug) }}" class="rating-reviews">( {{ $related->reviews_count ?? 0 }} reviews )</a>
+                        </div>
                     </div>
                 </div>
                 @endforeach
@@ -256,24 +288,59 @@
         @endif
     </div>
 </div>
-
-{{--@include('website.layouts.modals')--}}
-
 @endsection
 
 @push('js')
 <script>
-    // Quantity buttons logic
-    $(document).on('click', '.quantity-plus', function() {
-        let $input = $(this).closest('.input-group').find('input.quantity');
-        $input.val(parseInt($input.val()) + 1);
-    });
+    $(document).ready(function() {
+        // Quantity buttons logic
+        $(document).on('click', '.quantity-plus', function() {
+            let $input = $(this).closest('.input-group').find('input.quantity');
+            $input.val(parseInt($input.val()) + 1);
+        });
 
-    $(document).on('click', '.quantity-minus', function() {
-        let $input = $(this).closest('.input-group').find('input.quantity');
-        if (parseInt($input.val()) > 1) {
-            $input.val(parseInt($input.val()) - 1);
+        $(document).on('click', '.quantity-minus', function() {
+            let $input = $(this).closest('.input-group').find('input.quantity');
+            if (parseInt($input.val()) > 1) {
+                $input.val(parseInt($input.val()) - 1);
+            }
+        });
+
+        function initZoomOnActive() {
+            if ($.fn.elevateZoom) {
+                // Destroy existing zoom containers to prevent "beside info card" phantom zoom
+                $('.zoomContainer').remove();
+                $('.product-single-carousel img').removeData('elevateZoom').removeData('zoomImage');
+
+                var $activeImg = $('.product-single-carousel .owl-item.active img');
+                if ($activeImg.length) {
+                    var zoomOptions = (typeof Riode !== 'undefined' && Riode.defaults && Riode.defaults.zoomImage) 
+                        ? $.extend({}, Riode.defaults.zoomImage) 
+                        : { responsive: true, zoomType: 'inner', cursor: 'crosshair' };
+                    
+                    // Force inner zoom if theme default is causing issues
+                    zoomOptions.zoomType = 'inner'; 
+                    
+                    $activeImg.elevateZoom(zoomOptions);
+                }
+            }
         }
+
+        // Fix for first image zoom and transition between images
+        $(window).on('load', function() {
+            setTimeout(initZoomOnActive, 500);
+        });
+
+        $('.product-single-carousel').on('translated.owl.carousel', function() {
+            initZoomOnActive();
+        });
+
+        // Also handle thumbnail clicks if they don't trigger translated event immediately
+        $(document).on('click', '.product-thumb', function() {
+            var index = $(this).index();
+            $('.product-single-carousel').trigger('to.owl.carousel', [index, 300]);
+            setTimeout(initZoomOnActive, 400);
+        });
     });
 </script>
 @endpush
