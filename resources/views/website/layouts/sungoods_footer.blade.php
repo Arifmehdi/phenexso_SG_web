@@ -34,15 +34,15 @@
                         <ul class="widget-body">
                             <li>
                                 <label>Phone:</label>
-                                <a href="tel:{{ $ws->phone_one }}">{{ $ws->phone_one }}</a>
+                                <a href="tel:{{ $ws->contact_mobile }}">{{ $ws->contact_mobile }}</a>
                             </li>
                             <li>
                                 <label>Email:</label>
-                                <a href="mailto:{{ $ws->email }}">{{ $ws->email }}</a>
+                                <a href="mailto:{{ $ws->contact_email }}">{{ $ws->contact_email }}</a>
                             </li>
                             <li>
                                 <label>Address:</label>
-                                <a href="#">{{ $ws->address }}</a>
+                                <a href="#">{{ $ws->contact_address }}</a>
                             </li>
                             <li>
                                 <label>WORKING DAYS / HOURS:</label>

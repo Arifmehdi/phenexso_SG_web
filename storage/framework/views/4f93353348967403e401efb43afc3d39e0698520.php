@@ -10,15 +10,15 @@
                         <ul class="widget-body">
                             <li>
                                 <label>Phone:</label>
-                                <a href="tel:<?php echo e($ws->phone_one); ?>"><?php echo e($ws->phone_one); ?></a>
+                                <a href="tel:<?php echo e($ws->contact_mobile); ?>"><?php echo e($ws->contact_mobile); ?></a>
                             </li>
                             <li>
                                 <label>Email:</label>
-                                <a href="mailto:<?php echo e($ws->email); ?>"><?php echo e($ws->email); ?></a>
+                                <a href="mailto:<?php echo e($ws->contact_email); ?>"><?php echo e($ws->contact_email); ?></a>
                             </li>
                             <li>
                                 <label>Address:</label>
-                                <a href="#"><?php echo e($ws->address); ?></a>
+                                <a href="#"><?php echo e($ws->contact_address); ?></a>
                             </li>
                             <li>
                                 <label>WORKING DAYS / HOURS:</label>

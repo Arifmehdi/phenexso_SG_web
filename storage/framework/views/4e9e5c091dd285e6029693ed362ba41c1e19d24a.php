@@ -203,6 +203,9 @@
                             <a href="<?php echo e($menu->link); ?>"><?php echo e($menu->name_en); ?></a>
                         </li>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <li>
+                            <a href="<?php echo e(route('contact')); ?>">Contact</a>
+                        </li>
                     </ul>
                 </nav>
             </div>

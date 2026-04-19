@@ -248,7 +248,13 @@ class FrontendController extends Controller
 
     public function page($slug)
     {
-        $data['page'] = Page::whereActive('slug', $slug)->first();
+        $data['page'] = Page::active()
+            ->where('slug', $slug)
+            ->first();
+
+        if (! $data['page']) {
+            abort(404);
+        }
 
         return view('frontend.home.page_content', $data);
     }
@@ -768,7 +774,7 @@ class FrontendController extends Controller
             'topClickedProducts'
         ));
     }
-    
+
     // public function productDetails(Request $request, $slug)
     // {
     //     $product = Product::where('slug', $slug)->with('categories', 'reviews', 'media')->first();
@@ -1132,35 +1138,35 @@ class FrontendController extends Controller
 
     private function generateCartDropdownHtml($cartItems)
     {
-$html = '<div class="canvas-header">
+        $html = '<div class="canvas-header">
             <h4 class="canvas-title">Shopping Cart</h4>
             <a href="#" class="btn btn-dark btn-link btn-icon-right btn-close">
                 close<i class="d-icon-arrow-right"></i><span class="sr-only">Cart</span>
             </a>
         </div>';
 
-if ($cartItems->isEmpty()) {
-    $html .= '<div class="products scrollable">
+        if ($cartItems->isEmpty()) {
+            $html .= '<div class="products scrollable">
                 <p class="text-center">Your cart is empty</p>
               </div>';
 
-    $html .= '<div class="cart-total">
+            $html .= '<div class="cart-total">
                 <label>Subtotal:</label>
                 <span class="price">৳0.00</span>
               </div>';
 
-    $html .= '<div class="cart-action">
-                <a href="' . route('cart') . '" class="btn btn-dark btn-link">View Cart</a>
-                <a href="' . route('new.checkout') . '" class="btn btn-dark">
+            $html .= '<div class="cart-action">
+                <a href="'.route('cart').'" class="btn btn-dark btn-link">View Cart</a>
+                <a href="'.route('new.checkout').'" class="btn btn-dark">
                     <span>Go To Checkout</span>
                 </a>
               </div>';
 
-    return $html;
-}
+            return $html;
+        }
 
-$html .= '<div class="products scrollable">';
-$subtotal = 0;
+        $html .= '<div class="products scrollable">';
+        $subtotal = 0;
 
         foreach ($cartItems as $item) {
 
@@ -1527,9 +1533,9 @@ $subtotal = 0;
             // Mail::to('noreply@hublibd.com')->send(new OrderConfirmationEmail($order));
 
             // Send email to customer if email is provided
-            if ($order->email) {
-                Mail::to($order->email)->send(new OrderConfirmationEmail($order));
-            }
+            // if ($order->email) {
+            //     Mail::to($order->email)->send(new OrderConfirmationEmail($order));
+            // }
 
             return redirect()->route('user.dashboard')->with('success', 'Order placed successfully!');
         } else {

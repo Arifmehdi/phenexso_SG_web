@@ -199,6 +199,9 @@
                             <a href="{{ $menu->link }}">{{ $menu->name_en }}</a>
                         </li>
                         @endforeach
+                        <li>
+                            <a href="{{ route('contact') }}">Contact</a>
+                        </li>
                     </ul>
                 </nav>
             </div>
