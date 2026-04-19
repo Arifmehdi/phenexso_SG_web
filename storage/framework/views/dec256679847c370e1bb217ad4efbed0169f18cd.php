@@ -138,6 +138,93 @@
     <!-- Main JS File -->
     <script src="<?php echo e(asset('sungoods/js/main.min.js')); ?>"></script>
 
+    <script>
+        $(document).on("click", ".add-to-cart-btn", function (e) {
+            e.preventDefault();
+            let id = $(this).data("id");
+            let qty = $(this).closest('.product-form-group').find('.quantity').val() || 1;
+
+            $.ajax({
+                url: "<?php echo e(route('cart.quick.add')); ?>",
+                type: "GET",
+                data: { id: id, quantity: qty },
+                success: function (res) {
+                    if (typeof Riode !== 'undefined' && Riode.Minipopup) {
+                        Riode.Minipopup.open({
+                            message: 'Successfully added to cart',
+                            productClass: ' product-cart',
+                            name: res.name,
+                            nameLink: "<?php echo e(route('productDetails', '')); ?>/" + res.slug,
+                            imageSrc: res.image,
+                            imageLink: "<?php echo e(route('productDetails', '')); ?>/" + res.slug,
+                            price: '৳' + res.price,
+                            count: qty,
+                            actionTemplate: '<div class="action-group d-flex mt-3"><a href="<?php echo e(route("cart")); ?>" class="btn btn-sm btn-outline btn-primary btn-rounded mr-2">View Cart</a><a href="<?php echo e(route("new.checkout")); ?>" class="btn btn-sm btn-primary btn-rounded">Check Out</a></div>'
+                        });
+                    }
+                    
+                    if(res.cartCount !== undefined) {
+                        $(".cart-count").text(res.cartCount);
+                    }
+                    if(res.cartTotal !== undefined) {
+                        $(".cart-price").text('৳' + parseFloat(res.cartTotal).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    }
+                    if(res.cartDropdownHtml) {
+                        $(".cart-dropdown .dropdown-box").html(res.cartDropdownHtml);
+                    }
+                }
+            });
+        });
+
+        $(document).on("click", ".cart-dropdown .btn-close", function (e) {
+            e.preventDefault();
+            let removeUrl = $(this).attr('href');
+            
+            $.ajax({
+                url: removeUrl,
+                type: "GET",
+                success: function (res) {
+                    if(res.cartCount !== undefined) {
+                        $(".cart-count").text(res.cartCount);
+                    }
+                    if(res.cartTotal !== undefined) {
+                        $(".cart-price").text('৳' + parseFloat(res.cartTotal).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    }
+                    if(res.cartDropdownHtml) {
+                        $(".cart-dropdown .dropdown-box").html(res.cartDropdownHtml);
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.add-to-wishlist', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+
+            $.ajax({
+                url: "<?php echo e(route('wishlist.add')); ?>",
+                type: "POST",
+                data: {
+                    product_id: id,
+                    _token: "<?php echo e(csrf_token()); ?>"
+                },
+                success: function(res) {
+                    // Check if theme has its own popup for wishlist or use simple alert
+                    if (typeof Riode !== 'undefined' && Riode.Minipopup) {
+                        Riode.Minipopup.open({
+                            message: res.message,
+                            productClass: ' product-cart',
+                            name: 'Wishlist Update',
+                            actionTemplate: '<div class="action-group d-flex mt-3"><a href="<?php echo e(route("wishlist.index")); ?>" class="btn btn-sm btn-primary btn-rounded">View Wishlist</a></div>'
+                        });
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        });
+    </script>
+
     <?php echo $__env->yieldPushContent('js'); ?>
     
 </body>

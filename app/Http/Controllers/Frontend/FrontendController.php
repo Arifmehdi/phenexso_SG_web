@@ -768,6 +768,7 @@ class FrontendController extends Controller
             'topClickedProducts'
         ));
     }
+    
     // public function productDetails(Request $request, $slug)
     // {
     //     $product = Product::where('slug', $slug)->with('categories', 'reviews', 'media')->first();
@@ -885,6 +886,26 @@ class FrontendController extends Controller
     public function remove($id)
     {
         Cart::findOrFail($id)->delete();
+
+        if (request()->ajax()) {
+            $session_id = Session::get('session_id');
+            $user_id = Auth::id() ?? 0;
+
+            $cartItems = Cart::with('product')
+                ->where('session_id', $session_id)
+                ->when(auth()->check(), function ($query) use ($user_id) {
+                    $query->orWhere('user_id', $user_id);
+                })
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product removed from cart!',
+                'cartCount' => Cart::cartCount(),
+                'cartTotal' => Cart::totalCartPrice(),
+                'cartDropdownHtml' => $this->generateCartDropdownHtml($cartItems),
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Product removed from cart!');
     }
@@ -1111,22 +1132,35 @@ class FrontendController extends Controller
 
     private function generateCartDropdownHtml($cartItems)
     {
-        $html = '';
+$html = '<div class="canvas-header">
+            <h4 class="canvas-title">Shopping Cart</h4>
+            <a href="#" class="btn btn-dark btn-link btn-icon-right btn-close">
+                close<i class="d-icon-arrow-right"></i><span class="sr-only">Cart</span>
+            </a>
+        </div>';
 
-        if ($cartItems->isEmpty()) {
-            $html = '<div class="products scrollable"><p class="text-center">Your cart is empty</p></div>';
-            $html .= '<div class="cart-total"><label>Subtotal:</label><span class="price">৳0.00</span></div>';
-            $html .= '<div class="cart-action">
-                    <a href="'.route('cart').'" class="btn btn-dark btn-link">View Cart</a>
-                    <a href="'.route('new.checkout').'" class="btn btn-dark"><span>Go To Checkout</span></a>
-                  </div>';
+if ($cartItems->isEmpty()) {
+    $html .= '<div class="products scrollable">
+                <p class="text-center">Your cart is empty</p>
+              </div>';
 
-            return $html;
-        }
+    $html .= '<div class="cart-total">
+                <label>Subtotal:</label>
+                <span class="price">৳0.00</span>
+              </div>';
 
-        $html .= '<div class="products scrollable">';
+    $html .= '<div class="cart-action">
+                <a href="' . route('cart') . '" class="btn btn-dark btn-link">View Cart</a>
+                <a href="' . route('new.checkout') . '" class="btn btn-dark">
+                    <span>Go To Checkout</span>
+                </a>
+              </div>';
 
-        $subtotal = 0;
+    return $html;
+}
+
+$html .= '<div class="products scrollable">';
+$subtotal = 0;
 
         foreach ($cartItems as $item) {
 

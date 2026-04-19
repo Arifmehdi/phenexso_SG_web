@@ -1,425 +1,279 @@
 @extends('website.layouts.sungoods')
 
-@section('title', 'Product Details - '. env('APP_NAME'))
+@section('title', $product->name_en . ' - Sungoods')
 
 @section('meta')
-<meta name="description" content="{{ $product->name_en }}">
-<meta name="keywords" content="{{ $product->name_en }}, product details">
+<meta name="description" content="{{ Str::limit(strip_tags($product->description_en), 160) }}">
+<meta property="og:title" content="{{ $product->name_en }}">
+<meta property="og:description" content="{{ Str::limit(strip_tags($product->description_en), 160) }}">
+<meta property="og:image" content="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}">
 @endsection
 
 @push('css')
 <style>
-.product-gallery.pg-vertical { position: relative; }
-.product-single-carousel .product-image { border-radius: 8px; overflow: hidden; }
-.product-single-carousel img { width: 100%; height: auto; }
-.product-thumbs { display: flex; gap: 10px; margin-top: 15px; }
-.product-thumb { cursor: pointer; border-radius: 4px; overflow: hidden; opacity: 0.6; transition: opacity 0.3s; }
-.product-thumb.active, .product-thumb:hover { opacity: 1; }
-.product-thumb img { width: 80px; height: 80px; object-fit: cover; }
-.product-details { padding: 20px 0; }
-.product-name { font-size: 28px; font-weight: 700; margin-bottom: 10px; color: #333; }
-.product-meta { font-size: 14px; color: #666; margin-bottom: 15px; }
-.product-meta span { margin-right: 20px; }
-.product-price { font-size: 24px; font-weight: 600; color: #333; margin-bottom: 20px; }
-.product-price del { font-size: 16px; color: #999; margin-left: 10px; }
-.ratings-container { margin-bottom: 15px; }
-.ratings-full { display: inline-flex; }
-.ratings-full .ratings { width: 80%; }
-.product-short-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 20px; }
-.product-form-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-.product-form-group label { font-weight: 600; min-width: 80px; }
-.product-form select { padding: 10px 15px; border: 1px solid #ddd; border-radius: 4px; min-width: 150px; }
-.product-qty { display: flex; align-items: center; gap: 15px; margin: 20px 0; }
-.product-qty .input-group { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; }
-.product-qty .quantity-minus, .product-qty .quantity-plus { 
-    background: none; border: none; padding: 10px 15px; cursor: pointer; font-size: 18px;
-}
-.product-qty .quantity { 
-    width: 60px; text-align: center; border: none; border-left: 1px solid #ddd; border-right: 1px solid #ddd; padding: 10px; 
-}
-.btn-cart { 
-    background: #333; color: #fff; padding: 12px 30px; border: none; border-radius: 25px; 
-    font-weight: 600; cursor: pointer; transition: background 0.3s;
-}
-.btn-cart:hover { background: #555; }
-.product-footer { display: flex; align-items: center; gap: 20px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
-.btn-wishlist, .btn-compare { 
-    color: #666; text-decoration: none; display: flex; align-items: center; gap: 5px;
-}
-.btn-wishlist:hover, .btn-compare:hover { color: #333; }
-.product-tabs { margin-top: 40px; }
-.product-tabs .nav-tabs { border-bottom: 1px solid #eee; justify-content: center; gap: 30px; }
-.product-tabs .nav-link { 
-    border: none; padding: 15px 20px; color: #666; font-weight: 600; position: relative;
-}
-.product-tabs .nav-link.active { color: #333; }
-.product-tabs .nav-link.active::after { 
-    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #333; 
-}
-.tab-content { padding: 30px 0; }
-.description-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; }
-.related-products-section { margin-top: 60px; }
-.related-products-section h2 { font-size: 24px; font-weight: 700; margin-bottom: 30px; }
-.related-product-card { 
-    border: 1px solid #eee; border-radius: 8px; overflow: hidden; transition: box-shadow 0.3s;
-}
-.related-product-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-.related-product-card .product-img { position: relative; overflow: hidden; }
-.related-product-card .product-img img { width: 100%; height: 200px; object-fit: cover; }
-.related-product-card .product-info { padding: 15px; }
-.related-product-card .product-title { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
-.related-product-card .product-title a { color: #333; text-decoration: none; }
-.related-product-card .product-price { font-size: 16px; font-weight: 600; color: #333; }
-.stock-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-.stock-badge.in-stock { background: #d4edda; color: #155724; }
-.stock-badge.out-of-stock { background: #f8d7da; color: #721c24; }
+    .breadcrumb {
+        display: flex !important;
+        flex-wrap: wrap;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+    .breadcrumb li {
+        display: flex;
+        align-items: center;
+    }
+    .breadcrumb li a {
+        display: inline-flex;
+        align-items: center;
+    }
+    .breadcrumb .delimiter {
+        margin: 0 10px;
+        color: #999;
+    }
+    .product-navigation {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="page-header" style="background-image: url('{{ asset('sungoods/images/shop/page-header-back.jpg') }}'); background-color: #3C63A4;">
-    <h1 class="page-title">Shop</h1>
-    <ul class="breadcrumb">
-        <li><a href="{{ route('home') }}"><i class="d-icon-home"></i></a></li>
-        <li class="delimiter">/</li>
-        <li>Shop</li>
-    </ul>
-</div>
-<!-- End PageHeader -->
-
-<main class="main mt-6 single-product">
-    <div class="page-content mb-10 pb-6">
-        <div class="container">
-            <div class="product product-single row mb-7">
-                <!-- Product Gallery -->
-                <div class="col-md-6 sticky-sidebar-wrapper">
-                    <div class="product-gallery pg-vertical sticky-sidebar" data-sticky-options="{'minWidth': 767}">
-                        <div class="product-single-carousel owl-carousel owl-theme owl-nav-inner row cols-1 gutter-no">
-                            @forelse($product->media as $media)
-                                @if($media->file_name)
-                                <figure class="product-image">
-                                    <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}" 
-                                         alt="{{ $product->name_en }}" 
-                                         data-zoom-image="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}">
-                                </figure>
-                                @endif
-                            @empty
-                                <figure class="product-image">
-                                    <img src="{{ route('imagecache', ['template' => 'pnism', 'filename' => $product->fi()]) }}" 
-                                         alt="{{ $product->name_en }}">
-                                </figure>
-                            @endforelse
-                        </div>
-                        <div class="product-thumbs-wrap">
-                            <div class="product-thumbs">
-                                @forelse($product->media as $media)
-                                    @if($media->file_name)
-                                    <div class="product-thumb">
-                                        <img src="{{ route('imagecache', ['template' => 'pnism', 'filename' => $media->file_name]) }}" alt="product thumbnail">
-                                    </div>
-                                    @endif
-                                @empty
-                                <div class="product-thumb active">
-                                    <img src="{{ route('imagecache', ['template' => 'pnism', 'filename' => $product->fi()]) }}" alt="product thumbnail">
-                                </div>
-                                @endforelse
-                            </div>
-                        </div>
-                        @if($product->discount > 0)
-                        <div class="product-label-group">
-                            <label class="product-label label-sale">Sale</label>
-                        </div>
-                        @endif
+<div class="page-content mb-10 pb-6">
+    <div class="container">
+        <div class="product product-single row mb-7">
+            <div class="col-md-6 sticky-sidebar-wrapper">
+                <div class="product-gallery pg-vertical sticky-sidebar">
+                    <div class="product-single-carousel owl-carousel owl-theme owl-nav-inner row cols-1 gutter-no">
+                        <figure class="product-image">
+                            <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
+                                data-zoom-image="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
+                                alt="{{ $product->name_en }}" width="800" height="900">
+                        </figure>
+                        @foreach($product->media as $media)
+                        <figure class="product-image">
+                            <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}"
+                                data-zoom-image="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}"
+                                alt="{{ $product->name_en }}" width="800" height="900">
+                        </figure>
+                        @endforeach
                     </div>
-                </div>
-
-                <!-- Product Details -->
-                <div class="col-md-6">
-                    <div class="product-details">
-                        <div class="product-navigation mb-3">
-                            <ul class="breadcrumb breadcrumb-lg">
-                                <li><a href="{{ route('home') }}"><i class="d-icon-home"></i></a></li>
-                                <li><a href="{{ route('shop') }}">Products</a></li>
-                                <li class="active">Detail</li>
-                            </ul>
-                        </div>
-
-                        <h1 class="product-name">{{ $product->name_en }}</h1>
-                        
-                        <div class="product-meta">
-                            @if($product->sku)
-                            <span class="product-sku">SKU: {{ $product->sku }}</span>
-                            @endif
-                            <span class="product-brand">Brand: {{ $product->brand ?? 'N/A' }}</span>
-                        </div>
-
-                        <div class="product-price">
-                            {{ number_format($product->final_price, 2) }} ৳
-                            @if($product->discount > 0.00)
-                                <del>{{ number_format($product->price, 2) }} ৳</del>
-                            @endif
-                        </div>
-
-                        <div class="ratings-container">
-                            <div class="ratings-full">
-                                <span class="ratings" style="width: {{ $product->reviews->avg('rating') ? $product->reviews->avg('rating') * 20 : 0 }}%"></span>
+                    <div class="product-thumbs-wrap">
+                        <div class="product-thumbs">
+                            <div class="product-thumb active">
+                                <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}"
+                                    alt="product thumbnail" width="109" height="122">
                             </div>
-                            <a href="#product-tab-reviews" class="link-to-tab rating-reviews">( {{ $product->reviews->count() }} reviews )</a>
-                        </div>
-
-                        <p class="product-short-desc">{{ $product->short_description_en ?? 'No description available.' }}</p>
-
-                        <div class="product-form product-variations mb-3">
-                            <ul>
-                                <li>
-                                    <strong>Category:</strong>
-                                    <span>
-                                        @foreach($product->categories as $key => $cat)
-                                            <a href="#">{{ $cat->name_en }}</a>@if(!$loop->last), @endif
-                                        @endforeach
-                                    </span>
-                                </li>
-                                <li>
-                                    <strong>Stock:</strong>
-                                    <span>
-                                        @if($product->stock > 0)
-                                            <span class="stock-badge in-stock">In Stock</span>
-                                        @else
-                                            <span class="stock-badge out-of-stock">Out of Stock</span>
-                                        @endif
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <hr class="product-divider">
-
-                        <form id="addToCartForm" method="POST" action="{{ route('addToCart') }}">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" value="1">
-                            
-                            <div class="product-form product-qty">
-                                <div class="product-form-group">
-                                    <div class="input-group mr-2">
-                                        <button type="button" class="quantity-minus" onclick="decreaseQty()">-</button>
-                                        <input class="quantity form-control" type="number" id="productQty" name="quantity" value="1" min="1" max="{{ $product->stock }}">
-                                        <button type="button" class="quantity-plus" onclick="increaseQty()">+</button>
-                                    </div>
-                                    <button type="submit" class="btn-product btn-cart text-normal ls-normal font-weight-semi-bold">
-                                        <i class="d-icon-bag"></i>Add to Cart
-                                    </button>
-                                </div>
+                            @foreach($product->media as $media)
+                            <div class="product-thumb">
+                                <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $media->file_name]) }}"
+                                    alt="product thumbnail" width="109" height="122">
                             </div>
-                        </form>
-
-                        <hr class="product-divider mb-3">
-
-                        <div class="product-footer">
-                            <div class="social-links mr-4">
-                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
-                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
-                                <a href="#" class="social-link social-pinterest fab fa-pinterest-p"></a>
-                            </div>
-                            <a href="#" class="btn-product btn-wishlist" onclick="addToWishlist({{ $product->id }})">
-                                <i class="d-icon-heart"></i>Add to wishlist
-                            </a>
+                            @endforeach
                         </div>
+                        <button class="thumb-up disabled"><i class="fas fa-chevron-left"></i></button>
+                        <button class="thumb-down disabled"><i class="fas fa-chevron-right"></i></button>
                     </div>
+                    @if($product->final_price < $product->selling_price)
+                    <div class="product-label-group">
+                        <label class="product-label label-sale">{{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off</label>
+                    </div>
+                    @endif
                 </div>
             </div>
-
-            <!-- Product Tabs -->
-            <div class="tab tab-nav-simple product-tabs">
-                <ul class="nav nav-tabs justify-content-center" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#product-tab-description">Description</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#product-tab-additional">Additional Information</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#product-tab-reviews">Reviews ({{ $product->reviews->count() }})</a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane active in" id="product-tab-description">
-                        <div class="row mt-6">
-                            <div class="col-md-12">
-                                <h5 class="description-title mb-4 font-weight-semi-bold ls-m">Product Description</h5>
-                                <div class="product-description">
-                                    {!! $product->description_en !!}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="product-tab-additional">
-                        <ul class="list-none">
-                            @if($product->sku)
-                            <li><label>SKU:</label> <p>{{ $product->sku }}</p></li>
-                            @endif
-                            <li><label>Category:</label>
-                                <p>
-                                    @foreach($product->categories as $key => $cat)
-                                        {{ $cat->name_en }}@if(!$loop->last), @endif
-                                    @endforeach
-                                </p>
-                            </li>
-                            @if($product->brand)
-                            <li><label>Brand:</label> <p>{{ $product->brand }}</p></li>
-                            @endif
+            <div class="col-md-6">
+                <div class="product-details">
+                    <div class="product-navigation">
+                        <ul class="breadcrumb breadcrumb-lg">
+                            <li><a href="{{ route('home') }}"><i class="d-icon-home"></i></a></li>
+                            <li class="delimiter">/</li>
+                            <li><a href="{{ route('shop') }}" class="active">Products</a></li>
+                            <li class="delimiter">/</li>
+                            <li>Detail</li>
                         </ul>
                     </div>
-                    <div class="tab-pane" id="product-tab-reviews">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="description-title mb-4">Customer Reviews</h5>
-                                @forelse($product->reviews as $review)
-                                <div class="review-item mb-4">
-                                    <div class="ratings-full mb-2">
-                                        <span class="ratings" style="width: {{ $review->rating * 20 }}%"></span>
-                                    </div>
-                                    <h6>{{ $review->user->name ?? 'Anonymous' }}</h6>
-                                    <p>{{ $review->comment }}</p>
-                                    <small class="text-muted">{{ $review->created_at->format('F d, Y') }}</small>
-                                </div>
-                                @empty
-                                <p>No reviews yet. Be the first to review this product!</p>
-                                @endforelse
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="description-title mb-4">Write a Review</h5>
-                                {{--<form action="{{ route('review.store') }}" method="POST">--}}
-                                <form action="#" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <div class="mb-3">
-                                        <label>Rating</label>
-                                        <select name="rating" class="form-control" required>
-                                            <option value="5">5 Stars</option>
-                                            <option value="4">4 Stars</option>
-                                            <option value="3">3 Stars</option>
-                                            <option value="2">2 Stars</option>
-                                            <option value="1">1 Star</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label>Comment</label>
-                                        <textarea name="comment" class="form-control" rows="4" required></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-dark">Submit Review</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Related Products -->
-            @if($relatedProducts->count() > 0)
-            <div class="related-products-section">
-                <h2>Related Products</h2>
-                <div class="row">
-                    @foreach($relatedProducts as $related)
-                    <div class="col-md-3 col-sm-6 mb-4">
-                        <div class="related-product-card">
-                            <div class="product-img">
-                                <a href="{{ route('productDetails', $related->slug) }}">
-                                    <img src="{{ route('imagecache', ['template' => 'pnism', 'filename' => $related->fi()]) }}" alt="{{ $related->name_en }}">
-                                </a>
+                    <h1 class="product-name">{{ $product->name_en }}</h1>
+                    <div class="product-meta">
+                        SKU: <span class="product-sku">{{ $product->sku ?? 'N/A' }}</span>
+                        CATEGORIES: <span class="product-brand">
+                            @foreach ($product->categories as $cat)
+                                <a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a>@if(!$loop->last), @endif
+                            @endforeach
+                        </span>
+                    </div>
+                    <div class="product-price">
+                        <span class="price">৳{{ number_format($product->selling_price - $product->discount_price, 2) }}</span>
+                        @if($product->discount_price > 0)
+                            <del class="old-price">৳{{ number_format($product->selling_price, 2) }}</del>
+                        @endif
+                    </div>
+                    <div class="ratings-container">
+                        <div class="ratings-full">
+                            <span class="ratings" style="width:80%"></span>
+                            <span class="tooltiptext tooltip-top"></span>
+                        </div>
+                        <a href="#" class="rating-reviews">( 0 reviews )</a>
+                    </div>
+                    <p class="product-short-desc">
+                        {!! Str::limit(strip_tags($product->description_en), 200) !!}
+                    </p>
+
+                    <hr class="product-divider">
+
+                    <div class="product-form product-qty">
+                        <div class="product-form-group">
+                            <div class="input-group mr-2">
+                                <button class="quantity-minus d-icon-minus"></button>
+                                <input class="quantity form-control" type="number" min="1" max="1000000" value="1">
+                                <button class="quantity-plus d-icon-plus"></button>
                             </div>
-                            <div class="product-info">
-                                <h3 class="product-title">
-                                    <a href="{{ route('productDetails', $related->slug) }}">{{ Str::limit($related->name_en, 30) }}</a>
-                                </h3>
-                                <div class="product-price">
-                                    {{ number_format($related->final_price, 2) }} ৳
-                                    @if($related->discount > 0)
-                                        <del>{{ number_format($related->price, 2) }} ৳</del>
-                                    @endif
-                                </div>
-                            </div>
+                            <button class="btn-product btn-cart text-normal ls-normal font-weight-semi-bold add-to-cart-btn" 
+                                data-id="{{ $product->id }}">
+                                <i class="d-icon-bag"></i>Add to Cart
+                            </button>
                         </div>
                     </div>
-                    @endforeach
+
+                    <hr class="product-divider mb-3">
+
+                    <div class="product-footer">
+                        <div class="social-links mr-4">
+                            <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                            <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                            <a href="#" class="social-link social-pinterest fab fa-pinterest-p"></a>
+                        </div>
+                        <span class="divider d-lg-show"></span>
+                        <a href="#" class="btn-product btn-wishlist mr-6 add-to-wishlist" data-id="{{ $product->id }}">
+                            <i class="d-icon-heart"></i>Add to wishlist</a>
+                    </div>
                 </div>
             </div>
-            @endif
         </div>
-    </div>
-</main>
-@endsection
 
+        <div class="tab tab-nav-simple product-tabs">
+            <ul class="nav nav-tabs justify-content-center" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#product-tab-description">Description</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#product-tab-reviews">Reviews (0)</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active in" id="product-tab-description">
+                    <div class="row mt-6">
+                        <div class="col-md-12">
+                            {!! $product->description_en !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="product-tab-reviews">
+                    <div class="row">
+                        <div class="col-lg-4 mb-6">
+                            <div class="avg-rating-container">
+                                <mark>0.0</mark>
+                                <div class="avg-rating">
+                                    <span class="avg-rating-title">Average Rating</span>
+                                    <div class="ratings-container mb-0">
+                                        <div class="ratings-full">
+                                            <span class="ratings" style="width:0%"></span>
+                                            <span class="tooltiptext tooltip-top"></span>
+                                        </div>
+                                        <span class="rating-reviews">( 0 Reviews )</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 mb-6">
+                            {{-- Add Review Form logic here --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if($relatedProducts->count() > 0)
+        <section class="pt-3 mt-10">
+            <h2 class="title justify-content-center">Related Products</h2>
+
+            <div class="owl-carousel owl-theme owl-nav-full row cols-2 cols-md-3 cols-lg-4"
+                data-owl-options="{
+                'items': 5,
+                'nav': false,
+                'loop': false,
+                'dots': true,
+                'margin': 20,
+                'responsive': {
+                    '0': {
+                        'items': 2
+                    },
+                    '768': {
+                        'items': 3
+                    },
+                    '992': {
+                        'items': 4,
+                        'dots': false,
+                        'nav': true
+                    }
+                }
+            }">
+                @foreach($relatedProducts as $related)
+                <div class="product">
+                    <figure class="product-media">
+                        <a href="{{ route('productDetails', $related->slug) }}">
+                            <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $related->fi()]) }}" alt="product" width="280" height="315">
+                        </a>
+                        <div class="product-action-vertical">
+                            <a href="#" class="btn-product-icon add-to-cart-btn" title="Add to cart" data-id="{{ $related->id }}" >
+                                <i class="d-icon-bag"></i></a>
+                            <a href="#" class="btn-product-icon add-to-wishlist" title="Add to wishlist" data-id="{{ $related->id }}">
+                                <i class="d-icon-heart"></i></a>
+                        </div>
+                    </figure>
+                    <div class="product-details">
+                        <div class="product-cat">
+                            @foreach($related->categories as $cat)
+                                <a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a>@if(!$loop->last), @endif
+                            @endforeach
+                        </div>
+                        <h3 class="product-name">
+                            <a href="{{ route('productDetails', $related->slug) }}">{{ $related->name_en }}</a>
+                        </h3>
+                        <div class="product-price">
+                            <span class="price">৳{{ number_format($related->selling_price - $related->discount_price, 2) }}</span>
+                            @if($related->discount_price > 0)
+                                <del class="old-price">৳{{ number_format($related->selling_price, 2) }}</del>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </section>
+        @endif
+    </div>
+</div>
+
+{{--@include('website.layouts.modals')--}}
+
+@endsection
 
 @push('js')
 <script>
+    // Quantity buttons logic
+    $(document).on('click', '.quantity-plus', function() {
+        let $input = $(this).closest('.input-group').find('input.quantity');
+        $input.val(parseInt($input.val()) + 1);
+    });
 
-// function decreaseQty() {
-//     var qty = document.getElementById('productQty');
-//     if(parseInt(qty.value) > 1) {
-//         qty.value = parseInt(qty.value) - 1;
-//     }
-// }
-
-// function increaseQty() {
-//     var qty = document.getElementById('productQty');
-//     if(parseInt(qty.value) < parseInt(qty.max)) {
-//         qty.value = parseInt(qty.value) + 1;
-//     }
-// }
-
-$(document).on('click', '.add-to-cart-btn', function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    $.ajax({
-        url: "{{ route('cart.quick.add') }}",
-        type: "GET",
-        data: {
-            id: id
-        },
-        success: function(res) {
-            if(res.success) {
-                // Update cart count in header
-                $('.cart-count').text(res.cartCount);
-                // Update cart price in header
-                $('.cart-price').text('৳' + res.cartTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
-                // Update cart dropdown content
-                $('.dropdown-box').html(res.cartDropdownHtml);
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: res.message,
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: res.message,
-                });
-            }
+    $(document).on('click', '.quantity-minus', function() {
+        let $input = $(this).closest('.input-group').find('input.quantity');
+        if (parseInt($input.val()) > 1) {
+            $input.val(parseInt($input.val()) - 1);
         }
     });
-});
-
-$(document).on('click', '.add-to-wishlist', function(e) {
-    e.preventDefault();
-    var id = $(this).data('id');
-    $.ajax({
-        url: "{{ route('wishlist.add') }}",
-        type: "POST",
-        data: {
-            product_id: id,
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(res) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: res.message,
-            });
-        }
-    });
-});
 </script>
 @endpush
