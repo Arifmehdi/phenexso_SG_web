@@ -1,5 +1,5 @@
 <header class="header">
-    <div class="header-top">
+    {{--<div class="header-top">
         <div class="container">
             <div class="header-left">
                 <p class="welcome-msg">{{ $ws->header_text ?? 'Welcome to our store!' }}</p>
@@ -27,7 +27,7 @@
                 @endauth
             </div>
         </div>
-    </div>
+    </div>--}}
     <!-- End HeaderTop -->
     <div class="header-middle sticky-header fix-top sticky-content">
         <div class="container">
@@ -158,7 +158,7 @@
                     <!-- End Dropdown Box -->
                 </div>
                 <span class="divider"></span>
-                <a href="{{ route('change.profile') }}" class="icon-box icon-box-side">
+                <a href="{{ route('login') }}" class="icon-box icon-box-side">
                     <div class="icon-box-icon mr-0 mr-lg-2">
                         <i class="d-icon-user"></i>
                     </div>
