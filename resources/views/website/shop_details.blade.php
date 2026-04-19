@@ -308,28 +308,56 @@
 
         function initZoomOnActive() {
             if ($.fn.elevateZoom) {
-                // Destroy existing zoom containers to prevent "beside info card" phantom zoom
-                $('.zoomContainer').remove();
-                $('.product-single-carousel img').removeData('elevateZoom').removeData('zoomImage');
+                var $activeItem = $('.product-single-carousel .owl-item.active');
+                
+                // If owl hasn't fully initialized yet, target the first item
+                if (!$activeItem.length) {
+                    $activeItem = $('.product-single-carousel .owl-item').first();
+                }
+                
+                var $activeImg = $activeItem.find('img');
+                
+                if ($activeImg.length && $activeImg.attr('src')) {
+                    // Thorough cleanup
+                    $('.zoomContainer').remove();
+                    $('.product-single-carousel img').each(function() {
+                        var $img = $(this);
+                        if ($img.data('elevateZoom')) {
+                            $img.data('elevateZoom').destroy();
+                        }
+                        $img.removeData('elevateZoom');
+                        $img.removeData('zoomImage');
+                    });
 
-                var $activeImg = $('.product-single-carousel .owl-item.active img');
-                if ($activeImg.length) {
                     var zoomOptions = (typeof Riode !== 'undefined' && Riode.defaults && Riode.defaults.zoomImage) 
                         ? $.extend({}, Riode.defaults.zoomImage) 
                         : { responsive: true, zoomType: 'inner', cursor: 'crosshair' };
                     
-                    // Force inner zoom if theme default is causing issues
                     zoomOptions.zoomType = 'inner'; 
                     
+                    // Re-initialize
                     $activeImg.elevateZoom(zoomOptions);
                 }
             }
         }
 
-        // Fix for first image zoom and transition between images
+        // Initial load with multiple strategies
         $(window).on('load', function() {
-            setTimeout(initZoomOnActive, 500);
+            initZoomOnActive();
         });
+
+        // Use imagesLoaded for reliability
+        $('.product-single-carousel').imagesLoaded(function() {
+            initZoomOnActive();
+        });
+
+        // Retry mechanism for slow loading
+        var initRetryCount = 0;
+        var initRetry = setInterval(function() {
+            initZoomOnActive();
+            initRetryCount++;
+            if (initRetryCount >= 5) clearInterval(initRetry);
+        }, 1000);
 
         $('.product-single-carousel').on('translated.owl.carousel', function() {
             initZoomOnActive();
