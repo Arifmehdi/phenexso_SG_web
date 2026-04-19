@@ -1524,7 +1524,7 @@ $subtotal = 0;
             Cart::where('user_id', $user->id)->delete();
 
             // Send email to admin
-            Mail::to('noreply@hublibd.com')->send(new OrderConfirmationEmail($order));
+            // Mail::to('noreply@hublibd.com')->send(new OrderConfirmationEmail($order));
 
             // Send email to customer if email is provided
             if ($order->email) {

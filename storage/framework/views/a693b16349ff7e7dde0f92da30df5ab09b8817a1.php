@@ -295,18 +295,18 @@
 <?php $__env->startPush('js'); ?>
 <script>
     $(document).ready(function() {
-        // Quantity buttons logic
-        $(document).on('click', '.quantity-plus', function() {
-            let $input = $(this).closest('.input-group').find('input.quantity');
-            $input.val(parseInt($input.val()) + 1);
-        });
+        // // Quantity buttons logic
+        // $(document).on('click', '.quantity-plus', function() {
+        //     let $input = $(this).closest('.input-group').find('input.quantity');
+        //     $input.val(parseInt($input.val()) + 1);
+        // });
 
-        $(document).on('click', '.quantity-minus', function() {
-            let $input = $(this).closest('.input-group').find('input.quantity');
-            if (parseInt($input.val()) > 1) {
-                $input.val(parseInt($input.val()) - 1);
-            }
-        });
+        // $(document).on('click', '.quantity-minus', function() {
+        //     let $input = $(this).closest('.input-group').find('input.quantity');
+        //     if (parseInt($input.val()) > 1) {
+        //         $input.val(parseInt($input.val()) - 1);
+        //     }
+        // });
 
         function initZoomOnActive() {
             if ($.fn.elevateZoom) {

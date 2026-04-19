@@ -119,16 +119,15 @@
                                     <th>Unit Price</th>
                                     <th>Qty</th>
                                     <th class="text-right">Subtotal</th>
-                                    <th class="text-center">Remove</th>
                                 </tr>
                             </thead>
-                            <tbody id="sgc-cart-tbody">
+                            <tbody>
                                 @foreach($cartItems as $item)
                                     @php 
                                         $price = $item->product->selling_price - $item->product->discount_price;
                                         $lineTotal = $price * $item->quantity;
                                     @endphp
-                                    <tr class="sgc-cart-row" data-item-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}" data-price="{{ $price }}">
+                                    <tr>
                                         <td>
                                             <div class="sgc-product-cell">
                                                 <div class="sgc-product-cell__img">
@@ -141,23 +140,8 @@
                                             </div>
                                         </td>
                                         <td class="sgc-price">৳{{ number_format($price, 2) }}</td>
-                                        <td>
-                                            <div class="sgc-qty-ctrl">
-                                                <button type="button" class="sgc-qty-btn sgc-qty-btn--minus" data-item-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <span class="sgc-qty-val">{{ $item->quantity }}</span>
-                                                <button type="button" class="sgc-qty-btn sgc-qty-btn--plus" data-item-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td class="sgc-price sgc-price--bold text-right sgc-line-total">৳{{ number_format($lineTotal, 2) }}</td>
-                                        <td class="text-center">
-                                            <a href="{{ route('cart.remove', $item->id) }}" class="sgc-remove-btn sgc-cart-remove" data-item-id="{{ $item->id }}" title="Remove item">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </a>
-                                        </td>
+                                        <td><span class="sgc-qty">{{ $item->quantity }}</span></td>
+                                        <td class="sgc-price sgc-price--bold text-right">৳{{ number_format($lineTotal, 2) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -220,16 +204,16 @@
                                 <div class="sgc-summary__rows">
                                     <div class="sgc-summary__row">
                                         <span>Subtotal</span>
-                                        <strong id="sgc-subtotal-val">৳{{ number_format($subtotal, 2) }}</strong>
+                                        <strong>৳{{ number_format($subtotal, 2) }}</strong>
                                     </div>
                                     <div class="sgc-summary__row">
                                         <span>Shipping Fee</span>
-                                        <strong id="sgc-shipping-val" data-raw="{{ $shippingCharge }}">৳{{ number_format($shippingCharge, 2) }}</strong>
+                                        <strong>৳{{ number_format($shippingCharge, 2) }}</strong>
                                     </div>
                                 </div>
                                 <div class="sgc-summary__total">
                                     <span>Total</span>
-                                    <strong id="sgc-grand-val">৳{{ number_format($grandTotal, 2) }}</strong>
+                                    <strong>৳{{ number_format($grandTotal, 2) }}</strong>
                                 </div>
                             </div>
 
@@ -351,159 +335,6 @@ $(document).ready(function () {
     }).on('blur', function () {
         $(this).closest('.sgc-field').removeClass('sgc-field--focused');
     });
-
-    /* ════════════════════════════════════════
-       CART — Quantity & Remove Controls
-       Uses same AJAX routes as the header cart
-       ════════════════════════════════════════ */
-
-    /* Helper: recalculate totals from all rows */
-    function recalcTotals() {
-        var subtotal = 0;
-        $('#sgc-cart-tbody .sgc-cart-row').each(function () {
-            var price = parseFloat($(this).data('price'));
-            var qty   = parseInt($(this).find('.sgc-qty-val').text());
-            subtotal += price * qty;
-        });
-        var shipping = parseFloat($('#sgc-shipping-val').data('raw')) || 0;
-        var grand    = subtotal + shipping;
-
-        $('#sgc-subtotal-val').text('৳' + subtotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
-        $('#sgc-grand-val').text('৳' + grand.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
-
-        /* also sync header cart count/price */
-        var totalQty = 0;
-        $('#sgc-cart-tbody .sgc-cart-row').each(function () {
-            totalQty += parseInt($(this).find('.sgc-qty-val').text());
-        });
-        $('.cart-count').text(totalQty);
-        $('.cart-price').text('৳' + subtotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
-    }
-
-    /* ── PLUS button ── */
-    $(document).on('click', '.sgc-qty-btn--plus', function () {
-        var $btn       = $(this);
-        var productId  = $btn.data('product-id');
-        var $row       = $btn.closest('.sgc-cart-row');
-        var $qtySpan   = $row.find('.sgc-qty-val');
-        var currentQty = parseInt($qtySpan.text());
-        var newQty     = currentQty + 1;
-
-        $btn.prop('disabled', true).addClass('sgc-qty-btn--loading');
-
-        $.ajax({
-            url: "{{ route('cart.quick.add') }}",
-            type: 'GET',
-            data: { id: productId, quantity: 1 },
-            success: function (res) {
-                $qtySpan.text(newQty);
-                var price     = parseFloat($row.data('price'));
-                var lineTotal = price * newQty;
-                $row.find('.sgc-line-total').text('৳' + lineTotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
-                recalcTotals();
-                /* sync header dropdown if available */
-                if (res.cartDropdownHtml) {
-                    $('.cart-dropdown .dropdown-box').html(res.cartDropdownHtml);
-                }
-            },
-            error: function () {
-                alert('Could not update quantity. Please try again.');
-            },
-            complete: function () {
-                $btn.prop('disabled', false).removeClass('sgc-qty-btn--loading');
-            }
-        });
-    });
-
-    /* ── MINUS button ── */
-    $(document).on('click', '.sgc-qty-btn--minus', function () {
-        var $btn       = $(this);
-        var $row       = $btn.closest('.sgc-cart-row');
-        var itemId     = $btn.data('item-id');
-        var $qtySpan   = $row.find('.sgc-qty-val');
-        var currentQty = parseInt($qtySpan.text());
-
-        if (currentQty <= 1) {
-            /* qty would hit 0 — treat as remove */
-            removeRow($btn, $row, itemId);
-            return;
-        }
-
-        var newQty = currentQty - 1;
-        $btn.prop('disabled', true).addClass('sgc-qty-btn--loading');
-
-        /* Remove once then re-add at newQty to stay in sync with backend */
-        $.ajax({
-            url: "{{ route('cart.remove', '') }}/" + itemId,
-            type: 'GET',
-            success: function () {
-                var productId = $btn.data('product-id');
-                $.ajax({
-                    url: "{{ route('cart.quick.add') }}",
-                    type: 'GET',
-                    data: { id: productId, quantity: newQty },
-                    success: function (res) {
-                        $qtySpan.text(newQty);
-                        var price     = parseFloat($row.data('price'));
-                        var lineTotal = price * newQty;
-                        $row.find('.sgc-line-total').text('৳' + lineTotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
-                        recalcTotals();
-                        if (res.cartDropdownHtml) {
-                            $('.cart-dropdown .dropdown-box').html(res.cartDropdownHtml);
-                        }
-                    },
-                    complete: function () {
-                        $btn.prop('disabled', false).removeClass('sgc-qty-btn--loading');
-                    }
-                });
-            },
-            error: function () {
-                alert('Could not update quantity. Please try again.');
-                $btn.prop('disabled', false).removeClass('sgc-qty-btn--loading');
-            }
-        });
-    });
-
-    /* ── REMOVE button ── */
-    $(document).on('click', '.sgc-cart-remove', function (e) {
-        e.preventDefault();
-        var $btn   = $(this);
-        var $row   = $btn.closest('.sgc-cart-row');
-        var itemId = $btn.data('item-id');
-        removeRow($btn, $row, itemId);
-    });
-
-    function removeRow($btn, $row, itemId) {
-        $btn.addClass('sgc-removing');
-        $.ajax({
-            url: "{{ route('cart.remove', '') }}/" + itemId,
-            type: 'GET',
-            success: function (res) {
-                $row.addClass('sgc-row--removing');
-                setTimeout(function () {
-                    $row.remove();
-                    recalcTotals();
-
-                    /* if cart is now empty, show empty state */
-                    if ($('#sgc-cart-tbody .sgc-cart-row').length === 0) {
-                        location.reload();
-                    }
-
-                    if (res.cartDropdownHtml) {
-                        $('.cart-dropdown .dropdown-box').html(res.cartDropdownHtml);
-                    }
-                    if (res.cartCount !== undefined) {
-                        $('.cart-count').text(res.cartCount);
-                    }
-                }, 350);
-            },
-            error: function () {
-                alert('Could not remove item. Please try again.');
-                $btn.removeClass('sgc-removing');
-            }
-        });
-    }
-
 });
 </script>
 @endpush
@@ -1061,90 +892,6 @@ $(document).ready(function () {
 .sgc-coupon-form .sgc-input { margin: 0; }
 .sgc-link { color: var(--sgc-primary); text-decoration: none; font-weight: 600; }
 .sgc-link:hover { text-decoration: underline; }
-
-/* ── Qty Controls ── */
-.sgc-qty-ctrl {
-    display: inline-flex;
-    align-items: center;
-    gap: 0;
-    border: 1.5px solid var(--sgc-border);
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--sgc-white);
-}
-.sgc-qty-btn {
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--sgc-ink-3);
-    font-size: 11px;
-    transition: background var(--sgc-transition), color var(--sgc-transition);
-    flex-shrink: 0;
-}
-.sgc-qty-btn:hover {
-    background: var(--sgc-primary-lt);
-    color: var(--sgc-primary);
-}
-.sgc-qty-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-.sgc-qty-btn--loading {
-    opacity: 0.5;
-    pointer-events: none;
-}
-.sgc-qty-val {
-    min-width: 36px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--sgc-ink);
-    padding: 0 4px;
-    border-left: 1.5px solid var(--sgc-border);
-    border-right: 1.5px solid var(--sgc-border);
-    line-height: 32px;
-    display: inline-block;
-}
-
-/* ── Remove Button ── */
-.sgc-remove-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    border: 1.5px solid #fdd;
-    background: var(--sgc-secondary-lt);
-    color: var(--sgc-secondary);
-    font-size: 13px;
-    text-decoration: none;
-    transition: background var(--sgc-transition), border-color var(--sgc-transition), transform var(--sgc-transition);
-}
-.sgc-remove-btn:hover {
-    background: var(--sgc-secondary);
-    border-color: var(--sgc-secondary);
-    color: #fff;
-    transform: scale(1.08);
-}
-.sgc-remove-btn.sgc-removing {
-    opacity: 0.4;
-    pointer-events: none;
-}
-
-/* ── Row remove animation ── */
-.sgc-cart-row {
-    transition: opacity 0.35s ease, transform 0.35s ease;
-}
-.sgc-cart-row.sgc-row--removing {
-    opacity: 0;
-    transform: translateX(20px);
-}
 
 /* ── Mobile ── */
 @media(max-width:575px){
