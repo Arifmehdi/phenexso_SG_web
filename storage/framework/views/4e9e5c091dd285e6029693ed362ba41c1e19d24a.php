@@ -1,4 +1,4 @@
-<header class="header">
+<header class="header header-border">
     
     <!-- End HeaderTop -->
     <div class="header-middle sticky-header fix-top sticky-content">

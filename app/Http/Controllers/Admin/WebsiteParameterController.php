@@ -34,6 +34,7 @@ class WebsiteParameterController extends Controller
         $wp->contact_address = $request->contact_address;
         $wp->twitter_url = $request->twitter_url;
         $wp->youtube_url = $request->youtube_url;
+        $wp->iframe_map = $request->iframe_map;
 
         //For SEO START
         $wp->twitter_title = $request->twitter_title;
