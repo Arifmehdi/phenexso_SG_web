@@ -72,7 +72,32 @@
                     </div>
                     <!-- End Widget -->
                 </div>
+
                 
+
+                <div class="col-lg-3 col-md-6">
+    <div class="widget ml-lg-4">
+        <h4 class="widget-title">Download Our App</h4>
+
+        <p class="mb-3">Get our app for the best shopping experience.</p>
+
+        <div class="app-links">
+            
+            <a href="<?php echo e($ws->playstore_url ?? '#'); ?>" target="_blank" class="d-block mb-2">
+                <img src="<?php echo e(asset('sungoods/images/app/play_store.png')); ?>" 
+                     alt="Google Play" 
+                     style="max-width: 150px;">
+            </a>
+
+            
+            <a href="<?php echo e($ws->appstore_url ?? '#'); ?>" target="_blank" class="d-block">
+                <img src="<?php echo e(asset('sungoods/images/app/app_store.png')); ?>" 
+                     alt="App Store" 
+                     style="max-width: 150px;">
+            </a>
+        </div>
+    </div>
+</div>
             </div>
         </div>
         <!-- End FooterMiddle -->
@@ -83,13 +108,15 @@
                 </figure>
             </div>
             <div class="footer-center">
-                <p class="copyright"><?php echo e($ws->copyright_text ?? 'Sungoods eCommerce © 2026. All Rights Reserved'); ?></p>
+                <p class="copyright">
+                    <a href="https://phenexsoft.com/" target="_blank">Phenexsoft IT</a> © 2026. All Rights Reserved
+                </p>
             </div>
             <div class="footer-right">
                 <div class="social-links">
-                    <a href="<?php echo e($ws->facebook_link ?? '#'); ?>" title="social-link" class="social-link social-facebook fab fa-facebook-f"></a>
-                    <a href="<?php echo e($ws->twitter_link ?? '#'); ?>" title="social-link" class="social-link social-twitter fab fa-twitter"></a>
-                    <a href="<?php echo e($ws->linkedin_link ?? '#'); ?>" title="social-link" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                    <a href="<?php echo e($ws->fb_url ?? '#'); ?>" title="social-link" class="social-link social-facebook fab fa-facebook-f" target="_blank"></a>
+                    <a href="<?php echo e($ws->twitter_url ?? '#'); ?>" title="social-link" class="social-link social-twitter fab fa-twitter" target="_blank"></a>
+                    <a href="<?php echo e($ws->youtube_url ?? '#'); ?>" title="social-link" class="social-link social-youtube fab fa-youtube" target="_blank"></a>
                 </div>
             </div>
         </div>

@@ -172,9 +172,11 @@
                                     <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $product->fi()]) }}" alt="{{ $product->name_en }}" width="280" height="315">
                                 </a>
                                 <div class="product-label-group">
-                                    @if($product->final_price < $product->selling_price)
-                                    <label class="product-label label-sale">{{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off</label>
-                                    @endif
+                                @if(!empty($product->discount_price) && $product->discount_price > 0)
+                                    <label class="product-label label-sale">
+                                        {{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off
+                                    </label>
+                                @endif
                                 </div>
                                 <div class="product-action-vertical">
                                     <a href="#" class="btn-product-icon add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
@@ -194,10 +196,17 @@
                                     <a href="{{ route('productDetails', $product->slug) }}">{{ $product->name_en }}</a>
                                 </h3>
                                 <div class="product-price">
-                                    @if($product->final_price < $product->selling_price)
-                                    <ins class="new-price">৳{{ number_format($product->selling_price - $product->discount_price, 2) }}</ins><del class="old-price">৳{{ number_format($product->selling_price, 2) }}</del>
+                                    @if(!empty($product->discount_price) && $product->discount_price > 0)
+                                        <ins class="new-price">
+                                            ৳{{ number_format($product->selling_price - $product->discount_price, 2) }}
+                                        </ins>
+                                        <del class="old-price">
+                                            ৳{{ number_format($product->selling_price, 2) }}
+                                        </del>
                                     @else
-                                    <span class="price">৳{{ number_format($product->selling_price, 2) }}</span>
+                                        <span class="price">
+                                            ৳{{ number_format($product->selling_price, 2) }}
+                                        </span>
                                     @endif
                                 </div>
                                 <div class="ratings-container">

@@ -174,9 +174,11 @@
                             width="280" height="315" style="background-color: #f2f3f5;" />
                     </a>
                     <div class="product-label-group">
-                        @if($product->final_price < $product->selling_price)
-                        <label class="product-label label-sale">{{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off</label>
-                        @endif
+                    @if(!empty($product->discount_price) && $product->discount_price > 0)
+                        <label class="product-label label-sale">
+                            {{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off
+                        </label>
+                    @endif
                     </div>
                     <div class="product-action-vertical">
                         <a href="#" class="btn-product-icon add-to-cart-btn" data-id="{{ $product->id }}" title="Add to cart"><i class="d-icon-bag"></i></a>
@@ -197,10 +199,17 @@
                         <a href="{{ route('productDetails', $product->slug) }}">{{ $product->name_en }}</a>
                     </h3>
                     <div class="product-price">
-                        @if($product->final_price < $product->selling_price)
-                        <ins class="new-price">৳{{ number_format($product->selling_price - $product->discount_price, 2) }}</ins><del class="old-price">৳{{ number_format($product->selling_price, 2) }}</del>
+                        @if(!empty($product->discount_price) && $product->discount_price > 0)
+                            <ins class="new-price">
+                                ৳{{ number_format($product->selling_price - $product->discount_price, 2) }}
+                            </ins>
+                            <del class="old-price">
+                                ৳{{ number_format($product->selling_price, 2) }}
+                            </del>
                         @else
-                        <span class="price">৳{{ number_format($product->selling_price, 2) }}</span>
+                            <span class="price">
+                                ৳{{ number_format($product->selling_price, 2) }}
+                            </span>
                         @endif
                     </div>
                     <div class="ratings-container">
@@ -303,6 +312,57 @@
             </div>
         </div>
     </section>
+    <!-- <section class="banner banner-background parallax" 
+    style="background-color: #2d2f33; position: relative; overflow: hidden;">
+
+    <div class="container">
+        <div class="row align-items-center">
+
+            {{-- LEFT CONTENT --}}
+            <div class="col-lg-6 text-center text-lg-left">
+                <div class="banner-content text-white">
+
+                    <h4 class="banner-subtitle font-weight-bold mb-2">
+                        Download Our App & Get
+                        <span class="label-star bg-dark text-primary ml-2">30% OFF</span>
+                    </h4>
+
+                    <h3 class="banner-title font-weight-bold mb-3">
+                        Shop Faster with Sungoods App
+                    </h3>
+
+                    <p class="mb-4">
+                        Enjoy exclusive deals, faster checkout, and real-time order tracking.
+                    </p>
+
+                    <div class="d-flex flex-column flex-sm-row align-items-center">
+                        <a href="{{ $ws->playstore_url ?? '#' }}" 
+                           class="btn btn-primary btn-rounded mr-2 mb-2">
+                            Download App
+                        </a>
+
+                        <a href="{{ $ws->apk_url ?? '#' }}" 
+                           class="btn btn-outline-light btn-rounded mb-2">
+                            Get APK
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- RIGHT IMAGE --}}
+            <div class="col-lg-6 text-center mt-4 mt-lg-0">
+                <div class="mobile-image-wrapper">
+                    <img src="{{ asset('sungoods/images/app/mobile.png') }}" 
+                         alt="Mobile App" 
+                         class="mobile-img">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section> -->
     <section class="blog-section mt-10 appear-animate">
         <div class="container">
             <h2 class="title title-center mb-5">Latest Articles</h2>
@@ -384,6 +444,7 @@
                 @endforeach
             </div>
         </div>
+    </section>
     <section class="product-widget-wrapper pb-2 pb-md-10 appear-animate">
         <div class="container">
             <div class="row">
@@ -542,5 +603,76 @@
             </div>
         </div>
     </section>
+
+<!-- testimonial  -->
+ <style>
+    /* Ensure consistent image size */
+.user-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Align content properly */
+.testimonial-info {
+    margin-top: 15px;
+}
+
+/* Improve blockquote spacing */
+.testimonial blockquote {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+}
+</style>
+<section class="testimonial-section mt-10 pt-8 pb-10">
+    <div class="container">
+        <h2 class="title title-center mb-5">What Our Customers Say</h2>
+
+        <div class="owl-carousel owl-theme row cols-lg-3 cols-sm-2 cols-1"
+            data-owl-options='{
+                "items": 3,
+                "nav": false,
+                "dots": true,
+                "loop": true,
+                "margin": 20,
+                "responsive": {
+                    "0": {
+                        "items": 1
+                    },
+                    "576": {
+                        "items": 2
+                    },
+                    "992": {
+                        "items": 3,
+                        "dots": false
+                    }
+                }
+            }'>
+
+            @foreach($testimonials as $item)
+<div class="testimonial">
+    <blockquote>{!! $item->text_en !!}</blockquote>
+
+    <div class="testimonial-info d-flex align-items-center">
+        <figure class="testimonial-author-thumbnail mb-0">
+            <img 
+                src="{{ asset($item->image ?? 'sungoods/images/default-users.png') }}" 
+                alt="{{ $item->name }}" 
+                class="user-img">
+        </figure>
+
+        <cite class="ml-3">
+            {{ $item->name }}
+            <span>{{ $item->designation ?? 'Customer' }}</span>
+        </cite>
+    </div>
+</div>
+            @endforeach
+        </div>
+    </div>
+</section>
 </div>
 @endsection

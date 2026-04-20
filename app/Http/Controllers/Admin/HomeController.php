@@ -23,12 +23,48 @@ class HomeController extends Controller
 {
     public function index(){
         menuSubmenu('dashboardM','dashboardSM');
-        $users = User::get()->count();
-        $cat = ProductCategory::where('parent_id', null)->get()->count();
-        $productcount = Product::get()->count();
-        $orders = Order::get()->count();
+        
+        $users = User::count();
+        $cat = ProductCategory::where('parent_id', null)->count();
+        $productcount = Product::count();
+        $orders = Order::count();
+        
+        // Revenue Statistics (Delivered Orders)
+        $total_revenue = Order::where('order_status', 'delivered')->sum('grand_total');
+        $today_revenue = Order::where('order_status', 'delivered')
+            ->whereDate('delivered_at', now()->today())
+            ->sum('grand_total');
+        $this_month_revenue = Order::where('order_status', 'delivered')
+            ->whereMonth('delivered_at', now()->month)
+            ->whereYear('delivered_at', now()->year)
+            ->sum('grand_total');
+            
+        // Order Status Statistics
+        $pending_orders_count = Order::where('order_status', 'pending')->count();
+        $confirmed_orders_count = Order::where('order_status', 'confirmed')->count();
+        $delivered_orders_count = Order::where('order_status', 'delivered')->count();
+        $cancelled_orders_count = Order::where('order_status', 'cancelled')->count();
+
         $products = Product::latest()->take(10)->get();
-        return view('admin.index',compact('users','cat','products', 'orders', 'productcount'));
+        $recent_orders = Order::with('user')->latest()->take(10)->get();
+
+        // Sales data for the last 7 days
+        $sales_last_7_days = [];
+        $labels_last_7_days = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $labels_last_7_days[] = $date->format('M d');
+            $sales_last_7_days[] = Order::where('order_status', 'delivered')
+                ->whereDate('delivered_at', $date)
+                ->sum('grand_total');
+        }
+
+        return view('admin.index', compact(
+            'users', 'cat', 'products', 'orders', 'productcount',
+            'total_revenue', 'today_revenue', 'this_month_revenue',
+            'pending_orders_count', 'confirmed_orders_count', 'delivered_orders_count', 'cancelled_orders_count',
+            'recent_orders', 'sales_last_7_days', 'labels_last_7_days'
+        ));
     }
 
 

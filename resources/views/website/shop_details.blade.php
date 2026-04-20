@@ -93,10 +93,12 @@
                         <button class="thumb-up disabled"><i class="fas fa-chevron-left"></i></button>
                         <button class="thumb-down disabled"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    @if($product->final_price < $product->selling_price)
-                    <div class="product-label-group">
-                        <label class="product-label label-sale">{{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off</label>
-                    </div>
+                    @if(!empty($product->discount_price) && $product->discount_price > 0)
+                        <div class="product-label-group">    
+                          <label class="product-label label-sale">
+                                {{ calculateDiscountPercentage($product->selling_price, $product->discount_price) }}% off
+                            </label>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -122,9 +124,17 @@
                         </span>
                     </div>
                     <div class="product-price">
-                        <span class="price">৳{{ number_format($product->selling_price - $product->discount_price, 2) }}</span>
-                        @if($product->discount_price > 0)
-                            <del class="old-price">৳{{ number_format($product->selling_price, 2) }}</del>
+                        @if(!empty($product->discount_price) && $product->discount_price > 0)
+                            <ins class="new-price">
+                                ৳{{ number_format($product->selling_price - $product->discount_price, 2) }}
+                            </ins>
+                            <del class="old-price">
+                                ৳{{ number_format($product->selling_price, 2) }}
+                            </del>
+                        @else
+                            <span class="price">
+                                ৳{{ number_format($product->selling_price, 2) }}
+                            </span>
                         @endif
                     </div>
                     <div class="ratings-container">
@@ -244,8 +254,10 @@
                             <img src="{{ route('imagecache', ['template' => 'original', 'filename' => $related->fi()]) }}" alt="product" width="280" height="315">
                         </a>
                         <div class="product-label-group">
-                            @if($related->final_price < $related->selling_price)
-                            <label class="product-label label-sale">{{ calculateDiscountPercentage($related->selling_price, $related->discount_price) }}% off</label>
+                            @if(!empty($related->discount_price) && $related->discount_price > 0)
+                                <label class="product-label label-sale">
+                                    {{ calculateDiscountPercentage($related->selling_price, $related->discount_price) }}% off
+                                </label>
                             @endif
                         </div>
                         <div class="product-action-vertical">
