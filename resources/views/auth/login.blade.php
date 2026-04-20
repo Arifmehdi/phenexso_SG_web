@@ -1,385 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
+
+
+
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hubli - Login </title>
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | Sun Goods</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+    <!-- Favicons -->
+    <link href="{{ asset('frontend/login/assets') }}/backend/dist/img/favicon.ico" rel="icon">
 
-        html,
-        body {
-            display: grid;
-            height: 100%;
-            width: 100%;
-            place-items: center;
-            background: -webkit-linear-gradient(left, #689502, #72BF44, #0fc98bff, #13a650ff);
-        }
-
-        ::selection {
-            background: #1a75ff;
-            color: #fff;
-        }
-
-        .wrapper {
-            overflow: hidden;
-            max-width: 390px;
-            background: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .wrapper .title-text {
-            display: flex;
-            width: 200%;
-        }
-
-        .wrapper .title {
-            width: 50%;
-            font-size: 35px;
-            font-weight: 600;
-            text-align: center;
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .wrapper .slide-controls {
-            position: relative;
-            display: flex;
-            height: 50px;
-            width: 100%;
-            overflow: hidden;
-            margin: 30px 0 10px 0;
-            justify-content: space-between;
-            border: 1px solid lightgrey;
-            border-radius: 15px;
-        }
-
-        .slide-controls .slide {
-            height: 100%;
-            width: 100%;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 500;
-            text-align: center;
-            line-height: 48px;
-            cursor: pointer;
-            z-index: 1;
-            transition: all 0.6s ease;
-        }
-
-        .slide-controls label.signup {
-            color: #000;
-        }
-
-        .slide-controls .slider-tab {
-            position: absolute;
-            height: 100%;
-            width: 50%;
-            left: 0;
-            z-index: 0;
-            border-radius: 15px;
-            background: -webkit-linear-gradient(left, #689502, #689502, #689502, #689502);
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        input[type="radio"] {
-            display: none;
-        }
-
-        #signup:checked~.slider-tab {
-            left: 50%;
-        }
-
-        #signup:checked~label.signup {
-            color: #fff;
-            cursor: default;
-            user-select: none;
-        }
-
-        #signup:checked~label.login {
-            color: #000;
-        }
-
-        #login:checked~label.signup {
-            color: #000;
-        }
-
-        #login:checked~label.login {
-            cursor: default;
-            user-select: none;
-        }
-
-        .wrapper .form-container {
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .form-container .form-inner {
-            display: flex;
-            width: 200%;
-        }
-
-        .form-container .form-inner form {
-            width: 50%;
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .form-inner form .field {
-            height: 50px;
-            width: 100%;
-            margin-top: 20px;
-            position: relative;
-        }
-
-        .form-inner form .field input {
-            height: 100%;
-            width: 100%;
-            outline: none;
-            padding-left: 15px;
-            padding-right: 45px;
-            border-radius: 15px;
-            border: 1px solid lightgrey;
-            border-bottom-width: 2px;
-            font-size: 17px;
-            transition: all 0.3s ease;
-        }
-
-        .form-inner form .field .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #999;
-            font-size: 18px;
-            user-select: none;
-        }
-
-        .form-inner form .field .password-toggle:hover {
-            color: #689502;
-        }
-
-        .form-inner form .field input:focus {
-            border-color: #689502;
-            /* box-shadow: inset 0 0 3px #fb6aae; */
-        }
-
-        .form-inner form .field input::placeholder {
-            color: #999;
-            transition: all 0.3s ease;
-        }
-
-        form .field input:focus::placeholder {
-            color: #689502;
-        }
-
-        .form-inner form .pass-link {
-            margin-top: 5px;
-        }
-
-        .form-inner form .signup-link {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .form-inner form .pass-link a,
-        .form-inner form .signup-link a {
-            color: #1a75ff;
-            text-decoration: none;
-        }
-
-        .form-inner form .pass-link a:hover,
-        .form-inner form .signup-link a:hover {
-            text-decoration: underline;
-        }
-
-        form .btn {
-            height: 50px;
-            width: 100%;
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        form .btn .btn-layer {
-            height: 100%;
-            width: 300%;
-            position: absolute;
-            left: -100%;
-            background: -webkit-linear-gradient(right, #689502, #689502, #689502, #689502);
-            border-radius: 15px;
-            transition: all 0.4s ease;
-            ;
-        }
-
-        form .btn:hover .btn-layer {
-            left: 0;
-        }
-
-        form .btn input[type="submit"] {
-            height: 100%;
-            width: 100%;
-            z-index: 1;
-            position: relative;
-            background: none;
-            border: none;
-            color: #fff;
-            padding-left: 0;
-            border-radius: 15px;
-            font-size: 20px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-      <div class="wrapper">
-      <div class="title-text">
-          <div class="title login">HUBLI Login</div>
-          <div class="title signup">HUBLI Signup</div>
-      </div>
-      <div class="form-container">
-          <div class="slide-controls">
-              <input type="radio" name="slide" id="login" checked>
-              <input type="radio" name="slide" id="signup">
-              <label for="login" class="slide login">Login</label>
-              <label for="signup" class="slide signup">Signup</label>
-              <div class="slider-tab"></div>
-          </div>
-          <div class="form-inner">
-              <form action="{{ route('login') }}" method="POST" class="login">
-                @csrf
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&amp;display=fallback">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="{{ asset('frontend/login/assets') }}/backend/plugins/fontawesome-free/css/all.min.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="{{ asset('frontend/login/assets') }}/backend/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{ asset('frontend/login/assets') }}/backend/dist/css/adminlte.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{{ asset('frontend/login/assets') }}/backend/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet"
+        href="{{ asset('frontend/login/assets') }}/backend/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet"
+        href="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet"
+        href="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet"
+        href="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- toastr -->
+    <link rel="stylesheet" href="{{ asset('frontend/login/assets') }}/backend/plugins/toastr/toastr.min.css">
+    <!-- sweetalert2 -->
+    <link rel="stylesheet" href="{{ asset('frontend/login/assets') }}/backend/plugins/sweetalert2/sweetalert2.min.css">
+    <!-- custom styles -->
+    <link rel="stylesheet" href="{{ asset('frontend/login/assets') }}/dist/css/custom.html">
+    <!-- jQuery -->
+    <script src="{{ asset('frontend/login/assets') }}/backend/plugins/jquery/jquery.min.js"></script>
+        </head>
+<body class="hold-transition">
+    <div>
+            <div class="login-page">
+        <div class="login-box">
+            <div class="card card-outline card-primary shadow-lg" style="border-radius: 1rem; transition: all 0.3s ease;">
+                <div class="card-body">
+                    <h3 class="login-box-msg">Welcome Back!</h3>
+                    <p class="text-muted text-center">Please enter your login credentials</p>
+                  {{-- Flash Messages --}}
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
                     @if (session('error'))
-                        <div style="color:red; margin-top:10px; text-align:center;">
+                        <div class="alert alert-danger">
                             {{ session('error') }}
                         </div>
                     @endif
-                  <div class="field">
-                        <input type="email" class="form-control form-control-lg"  name="email" placeholder="Enter Email" value="{{ old('email') }}">
-                        @error('email')
-                            <span class="text-danger small">{{ $message }}</span>
-                        @enderror
-                  </div>
-                  <div class="field">
-                      <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Enter password">
-                        <span class="password-toggle" onclick="togglePassword('password', this)">👁️</span>
-                        @error('password')
-                            <span class="text-danger small">{{ $message }}</span>
-                        @enderror
-                  </div>
-                  <div class="pass-link"><a href="#">Forgot passsword?</a></div>
-                  <div class="field btn">
-                      <div class="btn-layer"></div>
-                      <input type="submit" value="Login">
-                  </div>
-                  <div class="signup-link">Not a member? <a href="">Signup now</a></div>
-              </form>
-              <form action="{{ route('main.register') }}" method="post"class="signup">
-                @csrf
-                    @if (session('error'))
-                        <div style="color:red; margin-top:10px; text-align:center;">
-                            {{ session('error') }}
+                          
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $err)
+                                    <li>{{ $err }}</li>
+                                @endforeach
+                            </ul>
                         </div>
                     @endif
-                  <div class="field">
-                      <input type="text" name="name" placeholder="Name" required>
-                        @error('name')
-                            <span class="text-danger small">{{ $message }}</span>
-                        @enderror
-                  </div>
-                  <div class="field">
-                      <input type="text" name="email" placeholder="Email Address" required>
-                        @error('email')
-                            <span class="text-danger small">{{ $message }}</span>
-                        @enderror
-                  </div>
-                  <div class="field">
-                      <input type="password" name="password" placeholder="Password" required id="register_password">
-                        <span class="password-toggle" onclick="togglePassword('register_password', this)">👁️</span>
-                        @error('password')
-                            <span class="text-danger small">{{ $message }}</span>
-                        @enderror
-                  </div>
-                  <div class="field">
-                      <input type="password" name="password_confirmation" placeholder="Confirm password" required id="confirm_password">
-                        <span class="password-toggle" onclick="togglePassword('confirm_password', this)">👁️</span>
-                        @error('password_confirmation')
-                            <span class="text-danger small">{{ $message }}</span>
-                        @enderror
-                  </div>
-                  <div class="field">
-                    <select name="role" required style="
-                        height: 100%;
-                        width: 100%;
-                        outline: none;
-                        padding-left: 15px;
-                        border-radius: 15px;
-                        border: 1px solid lightgrey;
-                        border-bottom-width: 2px;
-                        font-size: 17px;
-                        color: #555;
-                        background: #fff;
-                    ">
-                        <option value="">Select Role</option>
-                        <option value="rider">Rider</option>
-                        <option value="seller">Seller</option>
-                        <option value="buyer">Buyer</option>
-                    </select>
+                    <form action="{{ route('login') }}" method="POST">
+                        {{--<input type="hidden" name="_token" value="{{ csrf_token() }}" autocomplete="off">--}}
+                        @csrf
+                        <div class="form-group mb-3">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" name="email" id="email" value=""
+                                placeholder="Enter your email" required autocomplete="off" style="border-radius:0.25rem;">
+                                                    </div>
+                            @error('email')
+                                <span class="text-danger small">{{ $message }}</span>
+                            @enderror
+                        <div class="form-group mb-3">
+                            <label class="d-flex justify-content-between" for="passwordID">
+                                <span>Password</span>
+                                <a href="#" class="small">Forgot password?</a>
+                            </label>
+                            <div class="position-relative">
+                                <input type="password" name="password" id="passwordID" class="form-control"
+                                    placeholder="Enter new password" required style="border-radius:0.25rem;">
+                                <i class="fas fa-eye position-absolute" id="passwordIcon"
+                                    style="right: 10px; top: 50%; transform: translateY(-50%); cursor:pointer; color:#6c757d;"
+                                    onclick="togglePassword('passwordID', 'passwordIcon')"
+                                    onmouseover="this.style.color='#007bff'" onmouseout="this.style.color='#6c757d'"></i>
+                            
+                              @error('password')
+                                  <span class="text-danger small">{{ $message }}</span>
+                              @enderror
+                            </div>
+                                                      <!-- remember start  -->
+                          <div class="form-check">
+                              <input type="checkbox" class="form-check-input" name="remember" id="remember">
+                              <label class="form-check-label" for="remember">
+                                  Remember Me
+                              </label>
+                          </div>
 
-                    @error('role')
-                        <span class="text-danger small">{{ $message }}</span>
-                    @enderror
+                          <!-- remember end -->
+                          </div>
+
+                        <button type="submit" class="btn btn-primary btn-block mb-3" style="border-radius:0.25rem;">Sign
+                            In</button>
+
+                        {{--<div class="text-center">
+                            <span>Don't have an account? </span>
+                            <a href="{{ route('register') }}">Sign Up</a>
+                        </div>--}}
+                    </form>
                 </div>
-                  <div class="field btn">
-                      <div class="btn-layer"></div>
-                      <input type="submit" value="Signup">
-                  </div>
-              </form>
-          </div>
-      </div>
-  </div>
-</body>
-<script>
-    const loginText = document.querySelector(".title-text .login");
-    const loginForm = document.querySelector("form.login");
-    const loginBtn = document.querySelector("label.login");
-    const signupBtn = document.querySelector("label.signup");
-    const signupLink = document.querySelector("form .signup-link a");
-    signupBtn.onclick = (() => {
-        loginForm.style.marginLeft = "-50%";
-        loginText.style.marginLeft = "-50%";
-    });
-    loginBtn.onclick = (() => {
-        loginForm.style.marginLeft = "0%";
-        loginText.style.marginLeft = "0%";
-    });
-    signupLink.onclick = (() => {
-        signupBtn.click();
-        return false;
-    });
-
-    function togglePassword(inputId, toggleElement) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-
-        if (input.type === "password") {
-            input.type = "text";
-            toggleElement.textContent = "🙈"; // Icon for hidden
-        } else {
-            input.type = "password";
-            toggleElement.textContent = "👁️"; // Icon for visible
-        }
-    }
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+    $.widget.bridge('uibutton', $.ui.button)
 </script>
+<!-- Bootstrap 4 -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- ChartJS -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/chart.js/Chart.min.js"></script>
+<!-- Sparkline -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/sparklines/sparkline.js"></script>
+<!-- JQVMap -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/jqvmap/jquery.vmap.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+<!-- jQuery Knob Chart -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/jquery-knob/jquery.knob.min.js"></script>
+<!-- daterangepicker -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/moment/moment.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/daterangepicker/daterangepicker.js"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script
+    src="{{ asset('frontend/login/assets') }}/backend/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- Summernote -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/summernote/summernote-bs4.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="{{ asset('frontend/login/assets') }}/backend/dist/js/adminlte.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{{ asset('frontend/login/assets') }}/backend/dist/js/demo.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="{{ asset('frontend/login/assets') }}/backend/dist/js/pages/dashboard.js"></script>
+<!-- Select2 -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/select2/js/select2.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/select2/js/select2.full.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/jszip/jszip.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- toastr -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/toastr/toastr.min.js"></script>
+<!-- sweetalert2 -->
+<script src="{{ asset('frontend/login/assets') }}/backend/plugins/sweetalert2/sweetalert2.min.js"></script>
+<!-- custom scripts -->
+<script src="{{ asset('frontend/login/assets') }}/backend/dist/js/custom.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            
+            
+                    });
+    </script>
+</body>
+
 </html>

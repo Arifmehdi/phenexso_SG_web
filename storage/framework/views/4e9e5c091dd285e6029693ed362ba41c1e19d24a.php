@@ -1,33 +1,5 @@
 <header class="header">
-    <div class="header-top">
-        <div class="container">
-            <div class="header-left">
-                <p class="welcome-msg"><?php echo e($ws->header_text ?? 'Welcome to our store!'); ?></p>
-            </div>
-            <div class="header-right">
-                <div class="dropdown">
-                    <a href="#currency">BDT</a>
-                </div>
-                <!-- End DropDown Menu -->
-                <div class="dropdown ml-5">
-                    <a href="#language">ENG</a>
-                </div>
-                <!-- End DropDown Menu -->
-                <span class="divider"></span>
-                <a href="<?php echo e(route('contact')); ?>" class="contact d-lg-show"><i class="d-icon-map"></i>Contact</a>
-                <a href="<?php echo e(route('about-us')); ?>" class="help d-lg-show"><i class="d-icon-info"></i> Need Help</a>
-                <?php if(auth()->guard()->check()): ?>
-                <a href="<?php echo e(route('user.dashboard')); ?>" class="login-toggle link-to-tab d-md-show"><i class="d-icon-user"></i>Dashboard</a>
-                <span class="delimiter">/</span>
-                <a href="<?php echo e(route('logout')); ?>" class="register-toggle link-to-tab d-md-show ml-0">Logout</a>
-                <?php else: ?>
-                <a href="<?php echo e(route('login')); ?>" class="login-toggle link-to-tab d-md-show"><i class="d-icon-user"></i>Sign in</a>
-                <span class="delimiter">/</span>
-                <a href="<?php echo e(route('registration')); ?>" class="register-toggle link-to-tab d-md-show ml-0">Register</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
+    
     <!-- End HeaderTop -->
     <div class="header-middle sticky-header fix-top sticky-content">
         <div class="container">
@@ -153,7 +125,7 @@
                         </div>
 
                         <div class="cart-action">
-                            <a href="<?php echo e(route('cart')); ?>" class="btn btn-dark btn-link">View Cart</a>
+                            <a href="<?php echo e(route('new.checkout')); ?>" class="btn btn-dark btn-link">View Cart</a>
                             <a href="<?php echo e(route('new.checkout')); ?>" class="btn btn-dark">
                                 <span>Go To Checkout</span>
                             </a>

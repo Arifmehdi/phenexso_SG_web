@@ -2,7 +2,7 @@
 
 @section('title', 'Contact Us - ' . ($ws->name ?? env('APP_NAME')))
 
-@section('body_class', 'contact-page')
+@section('body_class', 'contact-us')
 
 @section('meta')
     <meta name="description" content="Contact us for inquiries, support, or business partnerships. Get in touch with our team today.">
@@ -13,361 +13,236 @@
 @endsection
 
 @push('css')
-<link rel="stylesheet" type="text/css" href="{{ asset('sungoods/css/contact.min.css') }}">
-<style>
-    .contact-hero {
-        background: linear-gradient(135deg, #09508F 0%, #0A5C9F 100%);
-        color: white;
-        padding: 100px 0 60px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .contact-hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('{{ asset('sungoods/images/contact/contact-pattern.png') }}') no-repeat;
-        background-size: cover;
-        opacity: 0.1;
-    }
-
-    .contact-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .contact-hero p {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        margin-bottom: 2rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .contact-info-section {
-        padding: 60px 0;
-        background: #f8f9fa;
-    }
-
-    .contact-info-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-
-    .contact-info-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-
-    .contact-info-card i {
-        font-size: 2.5rem;
-        color: #09508F;
-        margin-bottom: 1rem;
-    }
-
-    .contact-info-card h3 {
-        font-size: 1.3rem;
-        margin-bottom: 0.5rem;
-        color: #333;
-    }
-
-    .contact-info-card p {
-        color: #666;
-        margin: 0;
-    }
-
-    .contact-form-section {
-        padding: 60px 0;
-        background: white;
-    }
-
-    .contact-form-container {
-        background: #09508F;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-
-    .contact-form-title {
-        text-align: center;
-        color: white;
-        margin-bottom: 2rem;
-    }
-
-    .contact-form-title h2 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .contact-form-title p {
-        opacity: 0.9;
-        font-size: 1rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-control {
-        background: rgba(255,255,255,0.9);
-        border: 2px solid rgba(255,255,255,0.3);
-        border-radius: 10px;
-        padding: 0.8rem 1rem;
-        color: #333;
-        transition: all 0.3s ease;
-        font-size: 1rem;
-    }
-
-    .form-control:focus {
-        background: white;
-        border-color: white;
-        box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.5);
-        outline: none;
-    }
-
-    .form-control::placeholder {
-        color: #999;
-    }
-
-    .btn-submit {
-        background: white;
-        color: #09508F;
-        border: none;
-        border-radius: 10px;
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-    }
-
-    .btn-submit:hover {
-        background: #f8f9fa;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    .alert {
-        border-radius: 10px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .map-section {
-        padding: 60px 0;
-        background: #f8f9fa;
-    }
-
-    .map-container {
-        background: white;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-
-    .map-container iframe {
-        width: 100%;
-        height: 400px;
-        border: none;
-    }
-
-    @media (max-width: 768px) {
-        .contact-hero h1 {
-            font-size: 2rem;
-        }
-
-        .contact-hero p {
-            font-size: 1rem;
-        }
-
-        .contact-form-container {
-            padding: 1.5rem;
-        }
-
-        .contact-form-title h2 {
-            font-size: 1.5rem;
-        }
-
-        .map-container iframe {
-            height: 300px;
-        }
-    }
-</style>
+<link rel="stylesheet" type="text/css" href="{{ asset('sungoods/css/style.min.css') }}">
 @endpush
 
 @section('content')
-<!-- Hero Section -->
-<section class="contact-hero">
+<!-- <nav class="breadcrumb-nav">
     <div class="container">
-        <h1>Get in Touch</h1>
-        <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+        <ul class="breadcrumb">
+            <li><a href="{{ route('home') }}"><i class="d-icon-home"></i></a></li>
+            <li>Contact Us</li>
+        </ul>
     </div>
-</section>
+</nav> -->
+<div class="page-header" style="background-image: url({{ asset('sungoods/images/page-header/contact-us.jpg') }})">
+    <h1 class="page-title font-weight-bold text-capitalize ls-l">Contact Us</h1>
+</div>
 
-<!-- Contact Info Section -->
-<section class="contact-info-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="contact-info-card">
-                    <i class="fas fa-envelope"></i>
-                    <h3>Email</h3>
-                    <p>{{ $ws->contact_email ?? 'info@example.com' }}</p>
+<div class="page-content mt-10 pt-5">
+    <section class="contact-from-section">
+        <div class="container">
+            <header class="section-header with-subtitle text-center">
+                <h3 class="section-subtitle text-uppercase">Contact Us</h3>
+                <h2 class="section-title">Let’s Keep In Touch</h2>
+                <p class="section-desc">Do you have a question or some feedback? We’d love to hear from you.
+                </p>
+            </header>
+            
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="contact-info-card">
-                    <i class="fas fa-phone"></i>
-                    <h3>Phone</h3>
-                    <p>{{ $ws->contact_mobile ?? '+880 1234 567890' }}</p>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="contact-info-card">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <h3>Address</h3>
-                    <p>{{ $ws->contact_address ?? 'Dhaka, Bangladesh' }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+            @endif
 
-<!-- Contact Form Section -->
-<section class="contact-form-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="contact-form-container">
-                    <div class="contact-form-title">
-                        <h2>Send us a Message</h2>
-                        <p>Fill out the form below and we'll get back to you as soon as possible.</p>
+            <div class="row">
+                <div class="col-md-5 ls-m pb-10">
+                    <div class="grey-section d-flex align-items-center h-100">
+                        <div>
+                            <h4 class="mb-2 text-capitalize">Office Address</h4>
+                            <p>{{ $ws->contact_address ?? '121 King Street, Melbourne Victoria 3000 Australia' }}</p>
+
+                            <h4 class="mb-2 text-capitalize">Phone Number</h4>
+                            <p>
+                                <a href="tel:{{ $ws->contact_mobile ?? '#' }}">{{ $ws->contact_mobile ?? '1-800-456-789' }}</a>
+                            </p>
+
+                            <h4 class="mb-2 text-capitalize">Email</h4>
+                            <p class="mb-4">
+                                <a href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'support@example.com' }}</a><br>
+                                <a href="#">Help Center</a>
+                            </p>
+                        </div>
                     </div>
-
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <form id="contact-form" action="{{ route('contact.store') }}" method="post">
+                </div>
+                <div class="col-md-7">
+                    <form id="contact-form" action="{{ route('contact.store') }}" method="post" class="pl-lg-10">
                         @csrf
-                        <div class="form-group">
-                            <input type="text" name="name" class="form-control" placeholder="Your Name" value="{{ old('name') }}" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <input type="text" name="name" class="form-control" placeholder="Name*" value="{{ old('name') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <input type="email" name="email" class="form-control" placeholder="Email*" value="{{ old('email') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <input type="text" name="phone" class="form-control" placeholder="Phone*" value="{{ old('phone') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <select class="form-control" name="subject" required>
+                                    <option value="" {{ old('subject') == '' ? 'selected' : '' }}>Select Service Type</option>
+                                    <option value="Transport" {{ old('subject') == 'Transport' ? 'selected' : '' }}>Transport</option>
+                                    <option value="Product Delay" {{ old('subject') == 'Product Delay' ? 'selected' : '' }}>Product Delay</option>
+                                    <option value="Update Product/Price" {{ old('subject') == 'Update Product/Price' ? 'selected' : '' }}>Update Product/Price</option>
+                                    <option value="Other" {{ old('subject') == 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-12 mb-4">
+                                <textarea name="message" class="form-control" required placeholder="Comment or Message*">{{ old('message') }}</textarea>
+                            </div>
+                            <!-- <div class="col-12 mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="agree" id="agree" {{ old('agree') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="agree">
+                                        Save my name, email, and website in this browser for the next time I comment.
+                                    </label>
+                                </div>
+                            </div> -->
                         </div>
-                        <div class="form-group">
-                            <input type="email" name="email" class="form-control" placeholder="Your Email" value="{{ old('email') }}" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" name="phone" class="form-control" placeholder="Your Phone" value="{{ old('phone') }}" required>
-                        </div>
-                        <div class="form-group">
-                            <select class="form-control" name="subject" required>
-                                <option value="" {{ old('subject') == '' ? 'selected' : '' }}>Select Service Type</option>
-                                <option value="Transport" {{ old('subject') == 'Transport' ? 'selected' : '' }}>Transport</option>
-                                <option value="Product Delay" {{ old('subject') == 'Product Delay' ? 'selected' : '' }}>Product Delay</option>
-                                <option value="Update Product/Price" {{ old('subject') == 'Update Product/Price' ? 'selected' : '' }}>Update Product/Price</option>
-                                <option value="Other" {{ old('subject') == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <textarea name="message" class="form-control" rows="4" placeholder="Your Message" required>{{ old('message') }}</textarea>
-                        </div>
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" name="agree" id="agree" {{ old('agree') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="agree">
-                                Save my name, email, and website in this browser for the next time I comment.
-                            </label>
-                        </div>
-                        <button type="submit" class="btn-submit">
-                            <i class="fas fa-paper-plane"></i> Send Message
-                        </button>
+                        <button type="submit" class="btn btn-dark btn-rounded">Send Message<i class="d-icon-arrow-right"></i></button>
                     </form>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Map Section -->
-<section class="map-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="map-container">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14602.79920425715!2d90.39505561023496!3d23.793702090776875!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c70e61c0dcf3%3A0xfc162eac4282aa4a!2sDhaka%201213!5e0!3m2!1sen!2sbd!4v1763294719745!5m2!1sen!2sbd"
-                        frameborder="0"
-                        allowfullscreen=""
-                        aria-hidden="false"
-                        tabindex="0">
-                    </iframe>
+    <!-- <section class="store-section mt-10 pt-10 pb-10 border-top">
+        <div class="container">
+            <h2 class="section-title banner-title-f text-center ls-m mb-8">Our Store</h2>
+            <div class="row cols-sm-2 cols-lg-4">
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-1.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">New York</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-2.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">London</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-3.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">Oslo</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-4.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">Stockholm</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section> -->
+
+<!-- Google Maps Section -->
+<div class="grey-section google-map" id="googlemaps" style="height: 386px; overflow: hidden;">
+    
+    <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d233668.06396725783!2d90.25487754014735!3d23.780753031632905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b8b087026b81%3A0x8fa563bbdd5904c2!2sDhaka!5e0!3m2!1sen!2sbd!4v1776676837921!5m2!1sen!2sbd"
+        width="100%" 
+        height="100%" 
+        style="border:0;"
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+
+</div>
+<!-- End Map Section -->
+</div>
 @endsection
 
 @push('js')
+{{--<script src="{{ asset('sungoods/vendor/jquery.gmap/jquery.gmap.min.js') }}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key="></script>--}}
 <script>
-    // Form submission handling
-    $('#contact-form').on('submit', function(e) {
+    /*
+    Map Settings
+        Find the Latitude and Longitude of your address:
+            - https://www.latlong.net/
+            - http://www.findlatitudeandlongitude.com/find-address-from-latitude-and-longitude/
+    */
+
+    // Map Markers
+    var mapMarkers = [ {
+        address: "New York, NY 10017",
+        html: "<strong>New York Office<\/strong><br>New York, NY 10017",
+        popup: true
+    } ];
+
+    // Map Initial Location
+    var initLatitude = 40.75198;
+    var initLongitude = -73.96978;
+
+    // Map Extended Settings
+    var mapSettings = {
+        controls: {
+            draggable: !window.Riode.isMobile,
+            panControl: true,
+            zoomControl: true,
+            mapTypeControl: true,
+            scaleControl: true,
+            streetViewControl: true,
+            overviewMapControl: true
+        },
+        scrollwheel: false,
+        markers: mapMarkers,
+        latitude: initLatitude,
+        longitude: initLongitude,
+        zoom: 11
+    };
+
+    var map = $( '#googlemaps' ).gMap( mapSettings );
+
+    // Map text-center At
+    var mapCenterAt = function ( options, e ) {
         e.preventDefault();
-
-        // Basic validation
-        let isValid = true;
-        $(this).find('.form-control').each(function() {
-            if (!$(this).val()) {
-                isValid = false;
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
-        });
-
-        if (isValid) {
-            // Show loading state
-            let submitBtn = $(this).find('.btn-submit');
-            let originalText = submitBtn.html();
-            submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Sending...').prop('disabled', true);
-
-            // Submit form
-            this.submit();
-        }
-    });
-
-    // Input validation on keyup
-    $('#contact-form .form-control').on('keyup', function() {
-        if ($(this).val()) {
-            $(this).removeClass('is-invalid');
-        }
-    });
+        $( '#googlemaps' ).gMap( "centerAt", options );
+    }
 </script>
 @endpush

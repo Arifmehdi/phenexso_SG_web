@@ -138,6 +138,8 @@
     <!-- Main JS File -->
     <script src="{{ asset('sungoods/js/main.min.js') }}"></script>
 
+    @include('sweetalert::alert')
+
     <script>
         $(document).on("click", ".add-to-cart-btn", function (e) {
             e.preventDefault();
@@ -159,7 +161,7 @@
                             imageLink: "{{ route('productDetails', '') }}/" + res.slug,
                             price: '৳' + res.price,
                             count: qty,
-                            actionTemplate: '<div class="action-group d-flex mt-3"><a href="{{ route("cart") }}" class="btn btn-sm btn-outline btn-primary btn-rounded mr-2">View Cart</a><a href="{{ route("new.checkout") }}" class="btn btn-sm btn-primary btn-rounded">Check Out</a></div>'
+                            actionTemplate: '<div class="action-group d-flex mt-3"><a href="{{ route("new.checkout") }}" class="btn btn-sm btn-outline btn-primary btn-rounded mr-2">View Cart</a><a href="{{ route("new.checkout") }}" class="btn btn-sm btn-primary btn-rounded">Check Out</a></div>'
                         });
                     }
                     
