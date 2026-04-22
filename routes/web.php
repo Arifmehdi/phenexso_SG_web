@@ -119,6 +119,7 @@ Route::get('/md-message',[FrontendController::class,'mdMessage'])->name('mdMessa
 Route::get('/testimonial',[FrontendController::class,'testimonial'])->name('testimonial');
 Route::get('/about',[FrontendController::class,'about'])->name('about');
 Route::get('/shop',[FrontendController::class,'shop'])->name('shop');
+Route::get('/all-categories',[FrontendController::class,'allCategories'])->name('allCategories');
 Route::get('/quick-view', [FrontendController::class, 'quickView'])->name('quick.view');
 
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');

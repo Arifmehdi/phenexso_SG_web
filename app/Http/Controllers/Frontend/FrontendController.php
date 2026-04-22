@@ -102,16 +102,29 @@ class FrontendController extends Controller
 
         $data['best_products'] = Product::whereActive(true)
             ->where('feature', true)
-            ->latest()
+            ->inRandomOrder()
             ->limit(3)
             ->get();
 
         $data['popular_products'] = Product::whereActive(true)
             ->orderByDesc('click_count')
             ->limit(3)
+            ->inRandomOrder()
             ->get();
 
         return view('website.index', $data);
+    }
+
+    public function allCategories()
+    {
+        $categories = ProductCategory::where('active', true)
+            ->whereHas('products', function ($query) {
+                $query->where('active', true);
+            })
+            ->select('id', 'name_en', 'name_bn', 'slug', 'image')
+            ->get();
+
+        return view('website.all_categories', compact('categories'));
     }
 
     // For lazy loading products via AJAX

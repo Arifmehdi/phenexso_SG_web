@@ -158,15 +158,36 @@
                         <li>
                             <a href="#">Categories</a>
                             <div class="megamenu">
+                                <?php
+                                    $catCount = $productCategories->count();
+                                    $cols = 1;
+                                    if ($catCount > 8) {
+                                        $cols = 3;
+                                    } elseif ($catCount > 4) {
+                                        $cols = 2;
+                                    }
+                                    $colClass = 12 / $cols;
+                                ?>
                                 <div class="row">
-                                    <div class="col-12">
+                                    <?php $__currentLoopData = $productCategories->chunk(ceil($catCount / $cols)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chunk): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <div class="col-md-<?php echo e($colClass); ?>">
                                         <h4 class="menu-title">Product Categories</h4>
                                         <ul>
-                                            <?php $__currentLoopData = $productCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <li><a href="<?php echo e(route('productCategory', $cat->slug)); ?>"><?php echo e($cat->name_en); ?></a></li>
+                                            <?php $__currentLoopData = $chunk; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <li class="mb-3">
+                                                <a href="<?php echo e(route('productCategory', $cat->slug)); ?>" class="d-flex align-items-center">
+                                                    <img src="<?php echo e(route('imagecache', ['template'=>'original','filename' => $cat->image])); ?>" 
+                                                         alt="<?php echo e($cat->name_en); ?>" 
+                                                         width="45" height="45" 
+                                                         class="mr-3 rounded shadow-sm"
+                                                         style="object-fit: cover; border: 1px solid #eee;">
+                                                    <span style="font-weight: 500; font-size: 14px;"><?php echo e($cat->name_en); ?></span>
+                                                </a>
+                                            </li>
                                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </ul>
                                     </div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </div>
                             </div>
                         </li>

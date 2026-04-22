@@ -106,10 +106,19 @@
                     <a href="{{ route('home') }}">Home</a>
                 </li>
                 <li>
-                    <a href="{{ route('shop') }}">Categories</a>
+                    <a href="#">Categories</a>
                     <ul>
                         @foreach($productCategories as $cat)
-                        <li><a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a></li>
+                        <li>
+                            <a href="{{ route('productCategory', $cat->slug) }}" class="d-flex align-items-center py-2">
+                                <img src="{{ route('imagecache', ['template' => 'thumbnail', 'filename' => $cat->fi()]) }}" 
+                                     alt="{{ $cat->name_en }}" 
+                                     width="30" height="30" 
+                                     class="mr-3 rounded shadow-sm"
+                                     style="object-fit: cover; border: 1px solid #eee;">
+                                {{ $cat->name_en }}
+                            </a>
+                        </li>
                         @endforeach
                     </ul>
                 </li>

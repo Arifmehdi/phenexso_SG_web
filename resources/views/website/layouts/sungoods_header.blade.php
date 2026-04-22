@@ -182,15 +182,36 @@
                         <li>
                             <a href="#">Categories</a>
                             <div class="megamenu">
+                                @php
+                                    $catCount = $productCategories->count();
+                                    $cols = 1;
+                                    if ($catCount > 8) {
+                                        $cols = 3;
+                                    } elseif ($catCount > 4) {
+                                        $cols = 2;
+                                    }
+                                    $colClass = 12 / $cols;
+                                @endphp
                                 <div class="row">
-                                    <div class="col-12">
+                                    @foreach($productCategories->chunk(ceil($catCount / $cols)) as $chunk)
+                                    <div class="col-md-{{ $colClass }}">
                                         <h4 class="menu-title">Product Categories</h4>
                                         <ul>
-                                            @foreach($productCategories as $cat)
-                                            <li><a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a></li>
+                                            @foreach($chunk as $cat)
+                                            <li class="mb-3">
+                                                <a href="{{ route('productCategory', $cat->slug) }}" class="d-flex align-items-center">
+                                                    <img src="{{ route('imagecache', ['template'=>'original','filename' => $cat->image]) }}" 
+                                                         alt="{{ $cat->name_en }}" 
+                                                         width="45" height="45" 
+                                                         class="mr-3 rounded shadow-sm"
+                                                         style="object-fit: cover; border: 1px solid #eee;">
+                                                    <span style="font-weight: 500; font-size: 14px;">{{ $cat->name_en }}</span>
+                                                </a>
+                                            </li>
                                             @endforeach
                                         </ul>
                                     </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </li>

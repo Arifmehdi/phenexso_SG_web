@@ -106,10 +106,20 @@
                     <a href="<?php echo e(route('home')); ?>">Home</a>
                 </li>
                 <li>
-                    <a href="<?php echo e(route('shop')); ?>">Categories</a>
+                    <a href="#">Categories</a>
                     <ul>
                         <?php $__currentLoopData = $productCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <li><a href="<?php echo e(route('productCategory', $cat->slug)); ?>"><?php echo e($cat->name_en); ?></a></li>
+                        <li>
+                            <a href="<?php echo e(route('productCategory', $cat->slug)); ?>" class="d-flex align-items-center py-2">
+                                <img src="<?php echo e(route('imagecache', ['template' => 'thumbnail', 'filename' => $cat->fi()])); ?>" 
+                                     alt="<?php echo e($cat->name_en); ?>" 
+                                     width="30" height="30" 
+                                     class="mr-3 rounded shadow-sm"
+                                     style="object-fit: cover; border: 1px solid #eee;">
+                                <?php echo e($cat->name_en); ?>
+
+                            </a>
+                        </li>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </ul>
                 </li>

@@ -123,22 +123,42 @@
     }">
         <div class="container">
             <h2 class="title title-center mb-5">Our Categories</h2>
-            <div class="row">
-                @foreach($categories->take(4) as $cat)
-                <div class="col-xs-6 col-lg-3 mb-4">
-                    <div class="category category-default1 category-absolute banner-radius overlay-zoom">
-                        <a href="{{ route('productCategory', $cat->slug) }}">
-                            <figure class="category-media">
-                                <img src="{{ route('imagecache', ['template'=>'original','filename' => $cat->fi()]) }}" alt="{{ $cat->name_en }}" width="280"
-                                    height="280" style="background-color: #8c8c8d;" />
-                            </figure>
-                        </a>
-                        <div class="category-content">
-                            <h4 class="category-name font-weight-bold ls-l"><a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a></h4>
-                        </div>
+            <div class="owl-carousel owl-theme row cols-2 cols-md-3 cols-lg-4" data-owl-options="{
+                'items': 4,
+                'nav': false,
+                'dots': true,
+                'loop': true,
+                'autoplay': true,
+                'autoplayTimeout': 4000,
+                'margin': 20,
+                'responsive': {
+                    '0': {
+                        'items': 2
+                    },
+                    '768': {
+                        'items': 3
+                    },
+                    '992': {
+                        'items': 4
+                    }
+                }
+            }">
+                @foreach($categories as $cat)
+                <div class="category category-default1 category-absolute banner-radius overlay-zoom">
+                    <a href="{{ route('productCategory', $cat->slug) }}">
+                        <figure class="category-media">
+                            <img src="{{ route('imagecache', ['template'=>'original','filename' => $cat->fi()]) }}" alt="{{ $cat->name_en }}" width="280"
+                                height="280" style="background-color: #8c8c8d;" />
+                        </figure>
+                    </a>
+                    <div class="category-content">
+                        <h4 class="category-name font-weight-bold ls-l"><a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a></h4>
                     </div>
                 </div>
                 @endforeach
+            </div>
+            <div class="text-center mt-5">
+                <a href="{{ route('allCategories') }}" class="btn btn-outline btn-primary btn-rounded btn-md">View All Categories</a>
             </div>
         </div>
     </section>
@@ -151,7 +171,9 @@
         <div class="owl-carousel owl-theme row owl-nav-full cols-2 cols-md-3 cols-lg-4" data-owl-options="{
             'items': 4,
             'nav': true,
-            'loop': false,
+            'loop': true,
+            'autoplay': true,
+            'autoplayTimeout': 3000,
             'dots': true,
             'margin': 20,
             'responsive': {
