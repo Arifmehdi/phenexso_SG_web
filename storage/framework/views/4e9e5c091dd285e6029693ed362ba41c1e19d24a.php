@@ -12,13 +12,15 @@
                 </a>
                 <!-- End Logo -->
 
-                <div class="header-search hs-simple">
+                <div class="header-search hs-simple hs-expanded">
                     <form action="<?php echo e(route('search')); ?>" method="GET" class="input-wrapper">
-                        <input type="text" class="form-control" name="parameter" autocomplete="off"
+                        <input type="text" class="form-control" name="parameter" id="search-input" autocomplete="off"
                             placeholder="Search..." required />
                         <button class="btn btn-search" type="submit" title="submit-button">
                             <i class="d-icon-search"></i>
                         </button>
+                        <div id="search-results" class="search-results-wrapper shadow-sm" style="display: none;">
+                        </div>
                     </form>
                 </div>
                 <!-- End Header Search -->

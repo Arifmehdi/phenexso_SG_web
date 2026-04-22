@@ -149,6 +149,52 @@ class FrontendController extends Controller
         return view('website.mdMessage', compact('wp'));
     }
 
+    public function search(Request $request)
+    {
+        $search = $request->input('parameter') ?? $request->input('search');
+        return redirect()->route('shop', ['search' => $search]);
+    }
+
+    public function searchAjax(Request $request)
+    {
+        $search = $request->input('parameter') ?? $request->input('search');
+        
+        if (!$search) {
+            return response()->json([]);
+        }
+
+        $products = Product::where('active', 1)
+            ->where(function($q) use ($search) {
+                $q->where('name_en', 'like', '%' . $search . '%')
+                  ->orWhere('name_bn', 'like', '%' . $search . '%')
+                  ->orWhere('description_en', 'like', '%' . $search . '%');
+            })
+            ->limit(10)
+            ->get();
+
+        $results = [];
+        foreach ($products as $product) {
+            $priceHtml = "";
+            if (!empty($product->discount_price) && $product->discount_price > 0) {
+                $newPrice = number_format($product->selling_price - $product->discount_price, 2);
+                $oldPrice = number_format($product->selling_price, 2);
+                $priceHtml = "<ins class='new-price'>৳{$newPrice}</ins> <del class='old-price' style='font-size: 0.8em; color: #999; margin-left: 5px;'>৳{$oldPrice}</del>";
+            } else {
+                $price = number_format($product->selling_price, 2);
+                $priceHtml = "<span class='price'>৳{$price}</span>";
+            }
+
+            $results[] = [
+                'name' => $product->name_en,
+                'url' => route('productDetails', $product->slug),
+                'image' => route('imagecache', ['template' => 'original', 'filename' => $product->fi()]),
+                'price_html' => $priceHtml,
+            ];
+        }
+
+        return response()->json($results);
+    }
+
     public function shop(Request $request)
     {
         $query = Product::whereActive(true);

@@ -35,6 +35,63 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('sungoods/css/demo1.min.css') }}">
     
     @stack('css')
+    <style>
+        .search-results-wrapper {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            text-decoration: none !important;
+        }
+        .search-result-item:hover {
+            background: #f9f9f9;
+        }
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .search-result-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+        .search-result-item .info {
+            flex: 1;
+        }
+        .search-result-item .name {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .search-result-item .price {
+            font-size: 13px;
+            color: #222;
+            font-weight: 600;
+        }
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body class="@yield('body_class', 'home')">
@@ -74,11 +131,13 @@
                 <span>Search</span>
             </a>
             <form action="{{ route('search') }}" method="GET" class="input-wrapper">
-                <input type="text" class="form-control" name="parameter" placeholder="Search your keyword..."
-                    required />
+                <input type="text" class="form-control mobile-search-input" name="parameter" placeholder="Search your keyword..."
+                    required autocomplete="off" />
                 <button class="btn btn-search" type="submit">
                     <i class="d-icon-search"></i>
                 </button>
+                <div class="search-results-wrapper shadow-sm mobile-search-results" style="display: none;">
+                </div>
             </form>
         </div>
     </div>
@@ -94,11 +153,13 @@
         <!-- End of CloseButton -->
         <div class="mobile-menu-container scrollable">
             <form action="{{ route('search') }}" method="GET" class="input-wrapper">
-                <input type="text" class="form-control" name="parameter" placeholder="Search your keyword..."
-                    required />
+                <input type="text" class="form-control mobile-search-input" name="parameter" placeholder="Search your keyword..."
+                    required autocomplete="off" />
                 <button class="btn btn-search" type="submit">
                     <i class="d-icon-search"></i>
                 </button>
+                <div class="search-results-wrapper shadow-sm mobile-search-results" style="display: none;">
+                </div>
             </form>
             <!-- End of Search Form -->
             <ul class="mobile-menu mmenu-anim">
@@ -231,6 +292,71 @@
                     } else {
                         alert(res.message);
                     }
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            let searchTimer;
+            const $searchInput = $('#search-input');
+            const $searchResults = $('#search-results');
+            const $mobileSearchInputs = $('.mobile-search-input');
+
+            function performSearch(query, $container) {
+                if (query.length < 2) {
+                    $container.hide().empty();
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('search.ajax') }}",
+                    data: { parameter: query },
+                    success: function(data) {
+                        $container.empty();
+                        if (data.length > 0) {
+                            data.forEach(function(product) {
+                                $container.append(`
+                                    <a href="${product.url}" class="search-result-item">
+                                        <img src="${product.image}" alt="${product.name}">
+                                        <div class="info">
+                                            <span class="name">${product.name}</span>
+                                            <span class="price">${product.price_html}</span>
+                                        </div>
+                                    </a>
+                                `);
+                            });
+                            $container.show();
+                        } else {
+                            $container.append('<div class="no-results">No products found</div>');
+                            $container.show();
+                        }
+                    }
+                });
+            }
+
+            $searchInput.on('input', function() {
+                clearTimeout(searchTimer);
+                const query = $(this).val();
+                searchTimer = setTimeout(function() {
+                    performSearch(query, $searchResults);
+                }, 300);
+            });
+
+            $mobileSearchInputs.on('input', function() {
+                clearTimeout(searchTimer);
+                const query = $(this).val();
+                const $container = $(this).siblings('.search-results-wrapper');
+                searchTimer = setTimeout(function() {
+                    performSearch(query, $container);
+                }, 300);
+            });
+
+            // Close results when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.header-search').length) {
+                    $('.search-results-wrapper').hide();
                 }
             });
         });

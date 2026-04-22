@@ -147,6 +147,7 @@ Route::post('agent/update-profile',[FrontendController::class, 'updateProfile'])
 Route::get('/file/download/{id}',[FrontendController::class,'fileDownload'])->name('files.download');
 
 Route::get('/search',[FrontendController::class,'search'])->name('search');
+Route::get('/search-ajax', [FrontendController::class, 'searchAjax'])->name('search.ajax');
 
 // Route::get('doctor/list',[FrontendController::class,'doctorList'])->name('doctorList');
 Route::get('qurbani/occation',[FrontendController::class,'qurbaniOccation'])->name('qurbani.occation');
