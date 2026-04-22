@@ -113,6 +113,10 @@
                                     <label for="youtube_url" class="  control-label">Youtube Url</label>
                                     <input type="text" name="youtube_url" class="form-control" value="{{ old('youtube_url') ?: $websiteParameter->youtube_url ?? '' }}" id="youtube_url" placeholder="Youtube Url" autocomplete="off">
                                 </div>
+                                <div class="form-group ">
+                                    <label for="iframe_map" class="  control-label">Google Map</label>
+                                    <input type="text" name="iframe_map" class="form-control" value="{{ old('iframe_map') ?: $websiteParameter->iframe_map ?? '' }}" id="iframe_map" placeholder="Google Map Embed Code" autocomplete="off">
+                                </div>
 
                             </div>
                         </div>
@@ -213,7 +217,7 @@
                 
                 <!-- about section Start -->
 
-                <div class="row">
+                {{--<div class="row">
                     <div class="col-sm-12">
                         <div class="card card-widget">
                             <div class="card-header with-border">
@@ -266,7 +270,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>--}}
 
                 <!-- about section end  -->
 

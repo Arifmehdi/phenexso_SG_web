@@ -34,15 +34,15 @@
                         <ul class="widget-body">
                             <li>
                                 <label>Phone:</label>
-                                <a href="tel:{{ $ws->phone_one }}">{{ $ws->phone_one }}</a>
+                                <a href="tel:{{ $ws->contact_mobile }}">{{ $ws->contact_mobile }}</a>
                             </li>
                             <li>
                                 <label>Email:</label>
-                                <a href="mailto:{{ $ws->email }}">{{ $ws->email }}</a>
+                                <a href="mailto:{{ $ws->contact_email }}">{{ $ws->contact_email }}</a>
                             </li>
                             <li>
                                 <label>Address:</label>
-                                <a href="#">{{ $ws->address }}</a>
+                                <a href="#">{{ $ws->contact_address }}</a>
                             </li>
                             <li>
                                 <label>WORKING DAYS / HOURS:</label>
@@ -96,6 +96,7 @@
                     </div>
                     <!-- End Widget -->
                 </div>
+
                 {{--<div class="col-lg-3 col-md-6">
                     <div class="widget widget-instagram">
                         <h4 class="widget-title">Instagram</h4>
@@ -128,6 +129,30 @@
                     </div>
                     <!-- End Instagram -->
                 </div>--}}
+
+                <div class="col-lg-3 col-md-6">
+    <div class="widget ml-lg-4">
+        <h4 class="widget-title">Download Our App</h4>
+
+        <p class="mb-3">Get our app for the best shopping experience.</p>
+
+        <div class="app-links">
+            {{-- Google Play --}}
+            <a href="{{ $ws->playstore_url ?? '#' }}" target="_blank" class="d-block mb-2">
+                <img src="{{ asset('sungoods/images/app/play_store.png') }}" 
+                     alt="Google Play" 
+                     style="max-width: 150px;">
+            </a>
+
+            {{-- App Store (optional) --}}
+            <a href="{{ $ws->appstore_url ?? '#' }}" target="_blank" class="d-block">
+                <img src="{{ asset('sungoods/images/app/app_store.png') }}" 
+                     alt="App Store" 
+                     style="max-width: 150px;">
+            </a>
+        </div>
+    </div>
+</div>
             </div>
         </div>
         <!-- End FooterMiddle -->
@@ -138,13 +163,15 @@
                 </figure>
             </div>
             <div class="footer-center">
-                <p class="copyright">{{ $ws->copyright_text ?? 'Sungoods eCommerce © 2026. All Rights Reserved' }}</p>
+                <p class="copyright">
+                    <a href="https://phenexsoft.com/" target="_blank">Phenexsoft IT</a> © 2026. All Rights Reserved
+                </p>
             </div>
             <div class="footer-right">
                 <div class="social-links">
-                    <a href="{{ $ws->facebook_link ?? '#' }}" title="social-link" class="social-link social-facebook fab fa-facebook-f"></a>
-                    <a href="{{ $ws->twitter_link ?? '#' }}" title="social-link" class="social-link social-twitter fab fa-twitter"></a>
-                    <a href="{{ $ws->linkedin_link ?? '#' }}" title="social-link" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                    <a href="{{ $ws->fb_url ?? '#' }}" title="social-link" class="social-link social-facebook fab fa-facebook-f" target="_blank"></a>
+                    <a href="{{ $ws->twitter_url ?? '#' }}" title="social-link" class="social-link social-twitter fab fa-twitter" target="_blank"></a>
+                    <a href="{{ $ws->youtube_url ?? '#' }}" title="social-link" class="social-link social-youtube fab fa-youtube" target="_blank"></a>
                 </div>
             </div>
         </div>

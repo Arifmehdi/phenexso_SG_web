@@ -97,6 +97,21 @@ class Product extends Model
     }
 
  
+        // public function getEffectivePriceAttribute()
+        // {
+        //     if ($this->final_price < $this->selling_price) {
+        //         return $this->selling_price - ($this->discount_price ?? 0);
+        //     }
 
+        //     return $this->selling_price;
+        // }
+
+        public function getEffectivePriceAttribute()
+        {
+            $selling = $this->selling_price ?? 0;
+            $discount = $this->discount_price ?? 0;
+
+            return $selling - $discount;
+        }
    
 }

@@ -30,6 +30,9 @@ class Page extends Model
         return $this->pageItems()->where('active', 1)->get();
     }
 
-
+    public function scopeActive($query)
+    {
+        return $query->where('active', 1);
+    }
 
 }

@@ -1,550 +1,1158 @@
-@extends('website.layouts.master')
-@section('title', 'Checkout')
+@extends('website.layouts.sungoods')
+
+@section('title', 'Checkout - Sungoods')
 
 @section('content')
 
-<!-- BREADCRUMB AREA START -->
-<x-breadcrumb title="Checkout" pageName="Checkout" bgImage="frontend/img/bg/9.jpg" />
-<!-- BREADCRUMB AREA END -->
 @php
     $me = Auth::user();
     if($me){
         $dl = $me->locations()->first();
     }
     else{
-        $dl = null;
+        $dl = $location ?? null;
     }
-    $cartTotal = $cart_total ?? $cartItems->sum(fn($item) => $item->price * $item->quantity);
+    
+    $subtotal = $cartItems->sum(function($item) {
+        return ($item->product->selling_price - $item->product->discount_price) * $item->quantity;
+    });
+    $shippingCharge = $ws->shipping_charge ?? 0;
+    $grandTotal = $subtotal + $shippingCharge;
 @endphp
-<div class="container ">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4"><strong>Checkout</strong></h1>
+
+<div class="sgc-page">
+
+    <!-- ── Hero Strip ── -->
+    <div class="sgc-hero">
+        <div class="sgc-hero__inner container">
+            <p class="sgc-hero__eyebrow">Almost there</p>
+            <h1 class="sgc-hero__title">Checkout</h1>
+            <!-- Step Tracker -->
+            <div class="sgc-steps">
+                <a href="{{ route('cart') }}" class="sgc-step sgc-step--done">
+                    <span class="sgc-step__num">01</span>
+                    <span class="sgc-step__label">Shopping Cart</span>
+                </a>
+                <span class="sgc-step__line"></span>
+                <a href="{{ route('new.checkout') }}" class="sgc-step sgc-step--active">
+                    <span class="sgc-step__num">02</span>
+                    <span class="sgc-step__label">Checkout</span>
+                </a>
+                <span class="sgc-step__line"></span>
+                <span class="sgc-step sgc-step--pending">
+                    <span class="sgc-step__num">03</span>
+                    <span class="sgc-step__label">Order Complete</span>
+                </span>
+            </div>
         </div>
     </div>
 
-                        <div class="ltn__checkout-single-content ltn__returning-customer-wrap">
-                        <h5>Returning customer? <a class="ltn__secondary-color" href="#ltn__returning-customer-login"
-                                data-bs-toggle="collapse">Click here to login</a></h5>
-                        <div id="ltn__returning-customer-login" class="collapse ltn__checkout-single-content-info">
-                            <div class="ltn_coupon-code-form ltn__form-box">
-                                <p>Please login your accont.</p>
-                                <form action="#">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="input-item input-item-name ltn__custom-icon">
-                                                <input type="text" name="ltn__name" placeholder="Enter your name">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="input-item input-item-email ltn__custom-icon">
-                                                <input type="email" name="ltn__email" placeholder="Enter email address">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button class="btn theme-btn-1 btn-effect-1 text-uppercase">Login</button>
-                                    <label class="input-info-save mb-0"><input type="checkbox" name="agree"> Remember
-                                        me</label>
-                                    <p class="mt-30"><a href="register.html">Lost your password?</a></p>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ltn__checkout-single-content ltn__coupon-code-wrap">
-                        <h5>Have a coupon? <a class="ltn__secondary-color" href="#ltn__coupon-code"
-                                data-bs-toggle="collapse">Click here to enter your code</a></h5>
-                        <div id="ltn__coupon-code" class="collapse ltn__checkout-single-content-info">
-                            <div class="ltn__coupon-code-form">
-                                <p>If you have a coupon code, please apply it below.</p>
-                                <form action="#">
-                                    <input type="text" name="coupon-code" placeholder="Coupon code">
-                                    <button class="btn theme-btn-2 btn-effect-2 text-uppercase">Apply Coupon</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+    <div class="container sgc-body">
 
-    @if($cartItems->isEmpty())
-        <p class="text-center text-muted py-5 fs-5">Your cart is empty</p>
-    @else 
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-body">
-
-                   {{-- @include('frontend.home.includes.new_checkout-delivery-form')--}}
-
-                    <!-- Flash Messages -->
-                    @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
-                    @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
-                    @endif
-                    <div class="row">
-                        <header class="py-2 px-3" style="background: #699403;">
-                            <h2 class="text-white h5 d-flex align-items-center gap-2 mb-0">
-                                <i class="fas fa-shipping-fast"></i> Shipping Address
-                            </h2>
-                        </header>
-                        <div class="col-12 mt-3">
-                            <div >
-                                {{-- <p><b>Name:</b> {{ $dl ? $dl->name : Auth::user()->name }}</p>
-                                <p><b>Email:</b> {{ $dl ? $dl->email : Auth::user()->email }}</p>
-                                <p><b>Phone:</b> {{ $dl ? $dl->mobile : Auth::user()->mobile }}</p>
-                                <p><b>Address:</b> {{ $dl ? $dl->address_title : old('address_title') }}</p> --}}
-                                <div class="row">
-                                    <div class="col-md-6 mt-3">
-                                        <form>
-                                            <div class="mb-3">
-                                                <label for="billing-name" class="form-label">Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="name" name="name" value="{{ $dl ? $dl->name : (Auth::user() ? Auth::user()->name : '') }}" placeholder="Enter full name" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="billing-email" class="form-label">Email</label>
-                                                <input type="email" class="form-control" id="email" name="email" value="{{ $dl ? $dl->email : (Auth::user() ? Auth::user()->email : '') }}" placeholder="Enter email address (optional)">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="billing-phone" class="form-label">Phone <span class="text-danger">*</span></label>
-                                                <input type="tel" 
-                                                    class="form-control" 
-                                                    id="mobile" 
-                                                    name="mobile" 
-                                                    value="{{ $dl ? $dl->mobile : (Auth::user() ? Auth::user()->mobile : '') }}" 
-                                                    placeholder="e.g. 01XXXXXXXXX"
-                                                    maxlength="11"
-                                                    pattern="\d{11}"
-                                                    title="Please enter exactly 11 digits" required>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="billing-address" class="form-label">Address <span class="text-danger">*</span></label>
-                                                <textarea class="form-control" id="billing-address" name="billing_address" rows="3" placeholder="e.g. Home, Office House etc." value="{{ $dl ? $dl->address_title : old('address_title') }}" required>{{ $dl ? $dl->address_title : old('address_title') }}</textarea>
-                                            </div>
-
-                                            
-                                        </form>
-                                    </div>
-                                    {{--<div class="col-md-6 mt-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="ship-to-different-address">
-                                            <label class="form-check-label" for="ship-to-different-address">
-                                                Ship to different address
-                                            </label>
-                                        </div>
-                                        <div id="shipping-details" style="display: none;">
-                                            <h5 class="mt-4">Shipping Details</h5>
-                                            <form>
-                                                <div class="mb-3">
-                                                    <label for="shipping-name" class="form-label">Name</label>
-                                                    <input type="text" class="form-control" id="shipping-name">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="shipping-email" class="form-label">Email</label>
-                                                    <input type="email" class="form-control" id="shipping-email">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="shipping-phone" class="form-label">Phone</label>
-                                                    <input type="tel" class="form-control" id="shipping-phone">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="shipping-address" class="form-label">Address</label>
-                                                    <textarea class="form-control" id="shipping-address" rows="3"></textarea>
-                                                </div>
-                                            </form>
-                                        </div>
-                                        <div class="mt-4">
-                                            <h5>Delivery Time</h5>
-                                            <p>Inside Dhaka: 1 day</p>
-                                            <p>Outside Dhaka: 2 days</p>
-                                        </div>
-                                    </div>--}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- ── Promo / Login Banners ── -->
+        <div class="sgc-banners">
+            <div class="sgc-banner" id="banner-login">
+                <div class="sgc-banner__bar js-toggle-banner" data-target="login-panel">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Returning customer? <strong>Login here</strong></span>
+                    <i class="fas fa-chevron-down sgc-banner__arrow"></i>
                 </div>
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-body">
-                    @include('frontend.home.includes.checkout-cart-items', ['cartItems' => $cartItems])
-                </div>
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Payment Method</h5>
-
-                    <!-- âœ… Form should wrap ALL payment methods -->
-                    <form id="checkoutForm" method="POST" action="">
+                <div class="sgc-banner__panel" id="login-panel">
+                    <form action="{{ route('login') }}" method="POST" class="sgc-inline-form">
                         @csrf
-                        <input type="hidden" name="shipping_price" id="hidden-shipping-price" value="{{ $ws->shipping_charge ?? 0 }}">
-                        <div class="accordion" id="payment-accordion">
-
-                            <!-- Direct Cash -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="direct-cash-heading">
-                                    <button class="accordion-button collapsed" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#direct-cash-collapse"
-                                        aria-expanded="false" aria-controls="direct-cash-collapse">
-                                        <div class="form-check">
-                                            <input class="form-check-input paymentMethodSelect" type="radio"
-                                                value="cod" name="payment-method" id="direct-cash-payment">
-                                            <label class="form-check-label" for="direct-cash-payment">
-                                                Cash on Delivery
-                                            </label>
-                                        </div>
-                                    </button>
-                                </h2>
-                                <div id="direct-cash-collapse" class="accordion-collapse collapse"
-                                    aria-labelledby="direct-cash-heading" data-bs-parent="#payment-accordion">
-                                    <div class="accordion-body">
-                                        Pay with cash upon delivery.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Cash on Delivery -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="cash-on-delivery-heading">
-                                    <button class="accordion-button collapsed" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#cash-on-delivery-collapse"
-                                        aria-expanded="false" aria-controls="cash-on-delivery-collapse">
-                                        <div class="form-check">
-                                            <input class="form-check-input paymentMethodSelect" type="radio"
-                                                value="online" name="payment-method" id="cash-on-delivery">
-                                            <label class="form-check-label" for="cash-on-delivery">
-                                                Online Payment
-                                            </label>
-                                        </div>
-                                    </button>
-                                </h2>
-                                <div id="cash-on-delivery-collapse" class="accordion-collapse collapse"
-                                    aria-labelledby="cash-on-delivery-heading" data-bs-parent="#payment-accordion">
-                                    <div class="accordion-body">
-                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link active" id="bkash-tab" data-bs-toggle="tab" data-bs-target="#bkash" type="button" role="tab" aria-controls="bkash" aria-selected="true">bKash</button>
-                                            </li>
-                                            {{--<li class="nav-item" role="presentation">
-                                                <button class="nav-link" id="bank-tab" data-bs-toggle="tab" data-bs-target="#bank" type="button" role="tab" aria-controls="bank" aria-selected="false">Bank</button>
-                                            </li>--}}
-                                        </ul>
-                                        <div class="tab-content" id="myTabContent">
-                                            <div class="tab-pane fade show active" id="bkash" role="tabpanel" aria-labelledby="bkash-tab">
-                                                <div class="card-body">
-                                                    <p><strong>bKash Number:</strong> 01790552864 (Merchant)</p>
-                                                </div>
-                                            </div>
-                                            {{--<div class="tab-pane fade  " id="bank" role="tabpanel" aria-labelledby="bank-tab">
-                                                <div class="card-body">
-                                                    <p><strong>A/C Number:</strong> </p>
-                                                    <p><strong>A/C Name:</strong> </p>
-                                                </div>
-                                            </div>--}}
-
-                                        </div>
-                                        <div id="online-payment-details" style="display: none;">
-                                            <div class="mb-3">
-                                                <label for="transaction_id" class="form-label">Transaction ID</label>
-                                                <input type="text" class="form-control" id="transaction_id" name="transaction_id">
-                                            </div>
-                                        </div>
-                                        <p class="mt-3">{{ __('Bkash Message') }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- order note  -->
-                                <div >
-                                        <label for="order-note" class="form-label mt-2">Order Note (Optional)</label>
-                                        <textarea name="order_note" id="order_note" rows="4" class="form-control" placeholder="Notes about your order, e.g.  special notes for delivery"></textarea>
-                                </div>
+                        <div class="sgc-field">
+                            <label class="sgc-label">Username or email *</label>
+                            <input type="text" class="sgc-input" name="email" required>
+                        </div>
+                        <div class="sgc-field">
+                            <label class="sgc-label">Password *</label>
+                            <input type="password" class="sgc-input" name="password" required>
+                        </div>
+                        <div class="sgc-inline-form__actions">
+                            <button type="submit" class="sgc-btn sgc-btn--sm">Login</button>
+                            <a href="#" class="sgc-link">Forgot password?</a>
                         </div>
                     </form>
+                </div>
+            </div>
 
-                    <!-- Checkbox -->
-                    {{--<div class="form-check mb-3 mt-2">
-                        <input class="form-check-input" type="checkbox" id="receive-emails">
-                        <p>By placing your order, you agree to our <a href="{{ route('terms') }}">Terms & Conditions</a>, <a href="{{ route('return-policy') }}">Return & Refund Policy</a> and <a href="{{ route('privacy-policy') }}">Privacy Policy</a>.</p>
-                        <!-- <label class="form-check-label" for="receive-emails">
-                            I would like to receive exclusive emails with discounts and product information
-                        </label>
-                        <label for="">
-                            Shipment will be made within 24 hours of order confirmation. However, if the product is not in stock, there may be a delay in shipment.
-                        </label> -->
-                    </div>--}}
-
-                    <!-- <div class="mb-3">
-                        
-                    </div> -->
-
-                    <!-- Proceed Button -->
-                    <button class="btn w-100 mt-3 text-white" id="proceed-to-pay-button" style="background: #699403;" disabled>
-                        Proceed to Pay
-                    </button>
+            <div class="sgc-banner" id="banner-coupon">
+                <div class="sgc-banner__bar js-toggle-banner" data-target="coupon-panel">
+                    <i class="fas fa-tag"></i>
+                    <span>Have a coupon? <strong>Enter your code</strong></span>
+                    <i class="fas fa-chevron-down sgc-banner__arrow"></i>
+                </div>
+                <div class="sgc-banner__panel" id="coupon-panel">
+                    <form action="#" class="sgc-coupon-form">
+                        <input type="text" class="sgc-input" name="coupon_code" placeholder="Coupon code" required>
+                        <button type="submit" class="sgc-btn sgc-btn--sm">Apply</button>
+                    </form>
                 </div>
             </div>
         </div>
 
-    </div>
-    @endif
-</div>
+        @if($cartItems->isEmpty())
+            <!-- ── Empty Cart ── -->
+            <div class="sgc-empty">
+                <div class="sgc-empty__icon">
+                    <i class="d-icon-bag"></i>
+                </div>
+                <h2 class="sgc-empty__title">Your cart is empty</h2>
+                <p class="sgc-empty__text">Add some products to your cart before checking out.</p>
+                <a href="{{ route('shop') }}" class="sgc-btn">Go To Shop</a>
+            </div>
+        @else
+            <form action="{{ route('codOrderStore') }}" method="POST" id="checkout-form">
+                @csrf
+
+                <!-- ── Order Review ── -->
+                <div class="sgc-card sgc-card--table">
+                    <div class="sgc-card__head">
+                        <span class="sgc-card__tag">Review</span>
+                        <h2 class="sgc-card__title">Your Order</h2>
+                    </div>
+                    <div class="sgc-table-wrap">
+                        <table class="sgc-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Unit Price</th>
+                                    <th>Qty</th>
+                                    <th class="text-right">Subtotal</th>
+                                    <th class="text-center">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sgc-cart-tbody">
+                                @foreach($cartItems as $item)
+                                    @php 
+                                        $price = $item->product->selling_price - $item->product->discount_price;
+                                        $lineTotal = $price * $item->quantity;
+                                    @endphp
+                                    <tr class="sgc-cart-row" data-item-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}" data-price="{{ $price }}">
+                                        <td>
+                                            <div class="sgc-product-cell">
+                                                <div class="sgc-product-cell__img">
+                                                    <img src="{{ route('imagecache', ['template'=>'ppsm','filename' => $item->product->fi()]) }}" 
+                                                         width="56" height="56" alt="{{ $item->product->name_en }}">
+                                                </div>
+                                                <a href="{{ route('productDetails', $item->product->slug) }}" class="sgc-product-cell__name">
+                                                    {{ $item->product->name_en }}
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td class="sgc-price">৳{{ number_format($price, 2) }}</td>
+                                        <td>
+                                            <div class="sgc-qty-ctrl">
+                                                <button type="button" class="sgc-qty-btn sgc-qty-btn--minus" data-item-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <span class="sgc-qty-val">{{ $item->quantity }}</span>
+                                                <button type="button" class="sgc-qty-btn sgc-qty-btn--plus" data-item-id="{{ $item->id }}" data-product-id="{{ $item->product->id }}">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="sgc-price sgc-price--bold text-right sgc-line-total">৳{{ number_format($lineTotal, 2) }}</td>
+                                        <td class="text-center">
+                                            <a href="{{ route('cart.remove', $item->id) }}" class="sgc-remove-btn sgc-cart-remove" data-item-id="{{ $item->id }}" title="Remove item">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── Two-column Layout ── -->
+                <div class="sgc-grid">
+
+                    <!-- LEFT: Billing Details -->
+                    <div class="sgc-grid__main">
+                        <div class="sgc-card">
+                            <div class="sgc-card__head">
+                                <span class="sgc-card__tag">Ship to</span>
+                                <h2 class="sgc-card__title">Billing Details</h2>
+                            </div>
+                            <div class="sgc-card__body">
+                                <div class="sgc-fields">
+                                    <div class="sgc-field sgc-field--full">
+                                        <label class="sgc-label">Full Name <span class="req">*</span></label>
+                                        <input type="text" class="sgc-input" name="name"
+                                            value="{{ $dl ? $dl->name : ($me ? $me->name : '') }}"
+                                            placeholder="Enter your full name" required>
+                                    </div>
+                                    <div class="sgc-field">
+                                        <label class="sgc-label">Phone Number <span class="req">*</span></label>
+                                        <input type="tel" class="sgc-input" name="mobile"
+                                            value="{{ $dl ? $dl->mobile : ($me ? $me->mobile : '') }}"
+                                            placeholder="e.g. 01700000000" required>
+                                    </div>
+                                    <div class="sgc-field">
+                                        <label class="sgc-label">Email Address</label>
+                                        <input type="email" class="sgc-input" name="email"
+                                            value="{{ $dl ? $dl->email : ($me ? $me->email : '') }}"
+                                            placeholder="Enter your email">
+                                    </div>
+                                    <div class="sgc-field sgc-field--full">
+                                        <label class="sgc-label">Shipping Address <span class="req">*</span></label>
+                                        <textarea class="sgc-input sgc-textarea" name="billing_address" rows="3"
+                                            placeholder="House / Road / Area" required>{{ $dl ? $dl->address_title : '' }}</textarea>
+                                    </div>
+                                    <div class="sgc-field sgc-field--full">
+                                        <label class="sgc-label">Order Notes <span class="sgc-optional">(optional)</span></label>
+                                        <textarea class="sgc-input sgc-textarea" name="order_note" rows="4"
+                                            placeholder="e.g. Call before delivery"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Order Summary Sidebar -->
+                    <aside class="sgc-grid__aside">
+                        <div class="sgc-aside-inner">
+
+                            <!-- Summary Numbers -->
+                            <div class="sgc-summary">
+                                <h3 class="sgc-summary__title">Order Summary</h3>
+                                <div class="sgc-summary__rows">
+                                    <div class="sgc-summary__row">
+                                        <span>Subtotal</span>
+                                        <strong id="sgc-subtotal-val">৳{{ number_format($subtotal, 2) }}</strong>
+                                    </div>
+                                    <div class="sgc-summary__row">
+                                        <span>Shipping Fee</span>
+                                        <strong id="sgc-shipping-val" data-raw="{{ $shippingCharge }}">৳{{ number_format($shippingCharge, 2) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="sgc-summary__total">
+                                    <span>Total</span>
+                                    <strong id="sgc-grand-val">৳{{ number_format($grandTotal, 2) }}</strong>
+                                </div>
+                            </div>
+
+                            <!-- Payment Methods -->
+                            <div class="sgc-payment">
+                                <h4 class="sgc-payment__heading">Payment Method</h4>
+
+                                <label class="sgc-payment__option" id="label-cod">
+                                    <input type="radio" name="payment_method" value="cod" checked class="sgc-payment__radio">
+                                    <span class="sgc-payment__icon"><i class="fas fa-money-bill-wave"></i></span>
+                                    <span class="sgc-payment__meta">
+                                        <strong>Cash on Delivery</strong>
+                                        <small>Pay when you receive your order</small>
+                                    </span>
+                                    <span class="sgc-payment__check"><i class="fas fa-check"></i></span>
+                                </label>
+                                <div class="sgc-payment__detail" id="cash-on-delivery">
+                                    <p>Pay securely with cash upon receiving your items at your doorstep.</p>
+                                </div>
+
+                                <label class="sgc-payment__option" id="label-online">
+                                    <input type="radio" name="payment_method" value="online" class="sgc-payment__radio">
+                                    <span class="sgc-payment__icon sgc-payment__icon--bkash">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </span>
+                                    <span class="sgc-payment__meta">
+                                        <strong>Online Payment</strong>
+                                        <small>bKash mobile banking</small>
+                                    </span>
+                                    <span class="sgc-payment__check"><i class="fas fa-check"></i></span>
+                                </label>
+                                <div class="sgc-payment__detail" id="online-payment" style="display:none;">
+                                    <p class="sgc-payment__merchant">
+                                        <i class="fas fa-phone-alt"></i> Merchant bKash: <strong>01790552864</strong>
+                                    </p>
+                                    <p>Send money to the number above then enter your Transaction ID below.</p>
+                                    <input type="text" class="sgc-input" name="transaction_id" placeholder="Transaction ID">
+                                </div>
+                            </div>
+
+                            <!-- Terms -->
+                            <div class="sgc-terms">
+                                <label class="sgc-checkbox">
+                                    <input type="checkbox" class="custom-checkbox" id="terms-condition" name="terms-condition" required>
+                                    <span class="sgc-checkbox__box"></span>
+                                    <span class="sgc-checkbox__text">
+                                        I agree to the <a href="{{ route('terms') }}" class="sgc-link">Terms &amp; Conditions</a>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- Submit -->
+                            <button type="submit" class="sgc-btn sgc-btn--submit">
+                                Confirm Order
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+
+                            <!-- Trust Badges -->
+                            <div class="sgc-trust">
+                                <div class="sgc-trust__item"><i class="fas fa-lock"></i><span>Secure</span></div>
+                                <div class="sgc-trust__item"><i class="fas fa-shipping-fast"></i><span>Fast Delivery</span></div>
+                                <div class="sgc-trust__item"><i class="fas fa-undo"></i><span>Easy Return</span></div>
+                            </div>
+
+                        </div>
+                    </aside>
+
+                </div><!-- /.sgc-grid -->
+            </form>
+        @endif
+
+    </div><!-- /.container -->
+</div><!-- /.sgc-page -->
+
+@endsection
 
 @push('js')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const checkoutForm = document.getElementById('checkoutForm');
-    const paymentRadios = document.querySelectorAll('.paymentMethodSelect');
-    const emailCheckbox = document.getElementById('receive-emails');
-    const proceedBtn = document.getElementById('proceed-to-pay-button');
-    const shippingToggle = document.getElementById('ship-to-different-address');
-    const shippingDetails = document.getElementById('shipping-details');
+$(document).ready(function () {
 
-    // Elements for address change functionality
-    const changeAddressLink = document.getElementById('change-address-link');
-    const addressSelectionForm = document.getElementById('address-selection-form');
+    /* ── Banner Toggle ── */
+    $('.js-toggle-banner').on('click', function () {
+        var target = '#' + $(this).data('target');
+        $(target).slideToggle(280);
+        $(this).find('.sgc-banner__arrow').toggleClass('sgc-banner__arrow--open');
+    });
 
-    // Elements for dynamic address selection and shipping options
-    const zipInput = document.getElementById('zip');
-    const shippingOptionsContainer = document.getElementById('shipping-options-container');
-
-    const codRoute = "{{ route('codOrderStore') }}";
-    const onlineRoute = "{{ url('order/store') }}";
-
-    // âœ… Enable/disable Proceed button based on conditions
-    function toggleProceedButton() {
-        const paymentSelected = document.querySelector('.paymentMethodSelect:checked');
-        // const emailChecked = emailCheckbox ? emailCheckbox.checked : false;
-        
-        if (proceedBtn) {
-            proceedBtn.disabled = !(paymentSelected);
+    /* ── Payment Method Toggle ── */
+    $('input[name="payment_method"]').on('change', function () {
+        if ($(this).val() === 'cod') {
+            $('#cash-on-delivery').slideDown(240);
+            $('#online-payment').slideUp(240);
+            $('#label-cod').addClass('sgc-payment__option--active');
+            $('#label-online').removeClass('sgc-payment__option--active');
+        } else {
+            $('#cash-on-delivery').slideUp(240);
+            $('#online-payment').slideDown(240);
+            $('#label-online').addClass('sgc-payment__option--active');
+            $('#label-cod').removeClass('sgc-payment__option--active');
         }
+    });
+
+    /* ── Initial active state ── */
+    $('#label-cod').addClass('sgc-payment__option--active');
+
+    /* ── Form Validation ── */
+    $('#checkout-form').on('submit', function (e) {
+        if ($('input[name="payment_method"]:checked').val() === 'online') {
+            if (!$('input[name="transaction_id"]').val().trim()) {
+                alert('Please enter your Transaction ID for bKash payment.');
+                e.preventDefault();
+            }
+        }
+    });
+
+    /* ── Input focus float effect ── */
+    $('.sgc-input').on('focus', function () {
+        $(this).closest('.sgc-field').addClass('sgc-field--focused');
+    }).on('blur', function () {
+        $(this).closest('.sgc-field').removeClass('sgc-field--focused');
+    });
+
+    /* ════════════════════════════════════════
+       CART — Quantity & Remove Controls
+       Uses same AJAX routes as the header cart
+       ════════════════════════════════════════ */
+
+    /* Helper: recalculate totals from all rows */
+    function recalcTotals() {
+        var subtotal = 0;
+        $('#sgc-cart-tbody .sgc-cart-row').each(function () {
+            var price = parseFloat($(this).data('price'));
+            var qty   = parseInt($(this).find('.sgc-qty-val').text());
+            subtotal += price * qty;
+        });
+        var shipping = parseFloat($('#sgc-shipping-val').data('raw')) || 0;
+        var grand    = subtotal + shipping;
+
+        $('#sgc-subtotal-val').text('৳' + subtotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
+        $('#sgc-grand-val').text('৳' + grand.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
+
+        /* also sync header cart count/price */
+        var totalQty = 0;
+        $('#sgc-cart-tbody .sgc-cart-row').each(function () {
+            totalQty += parseInt($(this).find('.sgc-qty-val').text());
+        });
+        $('.cart-count').text(totalQty);
+        $('.cart-price').text('৳' + subtotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
     }
 
-    // âœ… Payment method change
-    paymentRadios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            toggleProceedButton();
-            const onlinePaymentDetails = document.getElementById('online-payment-details');
-            const transactionIdInput = document.getElementById('transaction_id');
-            if (radio.value === 'online' && radio.checked) {
-                onlinePaymentDetails.style.display = 'block';
-                transactionIdInput.required = true;
-            } else {
-                onlinePaymentDetails.style.display = 'none';
-                transactionIdInput.required = false;
+    /* ── PLUS button ── */
+    $(document).on('click', '.sgc-qty-btn--plus', function () {
+        var $btn       = $(this);
+        var productId  = $btn.data('product-id');
+        var $row       = $btn.closest('.sgc-cart-row');
+        var $qtySpan   = $row.find('.sgc-qty-val');
+        var currentQty = parseInt($qtySpan.text());
+        var newQty     = currentQty + 1;
+
+        $btn.prop('disabled', true).addClass('sgc-qty-btn--loading');
+
+        $.ajax({
+            url: "{{ route('cart.quick.add') }}",
+            type: 'GET',
+            data: { id: productId, quantity: 1 },
+            success: function (res) {
+                $qtySpan.text(newQty);
+                var price     = parseFloat($row.data('price'));
+                var lineTotal = price * newQty;
+                $row.find('.sgc-line-total').text('৳' + lineTotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
+                recalcTotals();
+                /* sync header dropdown if available */
+                if (res.cartDropdownHtml) {
+                    $('.cart-dropdown .dropdown-box').html(res.cartDropdownHtml);
+                }
+            },
+            error: function () {
+                alert('Could not update quantity. Please try again.');
+            },
+            complete: function () {
+                $btn.prop('disabled', false).removeClass('sgc-qty-btn--loading');
             }
         });
     });
 
-    // âœ… Email checkbox change
-    if (emailCheckbox) {
-        emailCheckbox.addEventListener('change', toggleProceedButton);
-    }
+    /* ── MINUS button ── */
+    $(document).on('click', '.sgc-qty-btn--minus', function () {
+        var $btn       = $(this);
+        var $row       = $btn.closest('.sgc-cart-row');
+        var itemId     = $btn.data('item-id');
+        var $qtySpan   = $row.find('.sgc-qty-val');
+        var currentQty = parseInt($qtySpan.text());
 
-    // âœ… Shipping toggle (for "Ship to different address" checkbox)
-    if (shippingToggle && shippingDetails) {
-        shippingToggle.addEventListener('change', function () {
-            shippingDetails.style.display = this.checked ? 'block' : 'none';
-        });
-    }
-
-    // âœ… Change address link click - FIXED
-    if (changeAddressLink && addressSelectionForm) {
-        changeAddressLink.addEventListener('click', function (e) {
-            e.preventDefault();
-            console.log('Change address clicked');
-            
-            if (addressSelectionForm.style.display === 'none' || addressSelectionForm.style.display === '') {
-                addressSelectionForm.style.display = 'block';
-            } else {
-                addressSelectionForm.style.display = 'none';
-            }
-        });
-    }
-
-    // âœ… Update totals function (shipping fixed from provider)
-    function updateTotals() {
-        const subtotalElement = document.querySelector('.subtotal');
-        const discountElement = document.querySelector('.discount');
-        const shippingPriceElement = document.getElementById('shipping-price');
-        const payableElement = document.querySelector('.payable');
-
-        if (subtotalElement && discountElement && payableElement) {
-            const subtotal = parseFloat(subtotalElement.getAttribute('data-value')) || 0;
-            const discount = parseFloat(discountElement.getAttribute('data-value')) || 0;
-            const shippingCost = parseFloat(shippingPriceElement?.getAttribute('data-value')) || 0;
-
-            const grandTotal = subtotal - discount + shippingCost;
-
-            payableElement.textContent = `Tk. ${grandTotal.toFixed(2)}`;
+        if (currentQty <= 1) {
+            /* qty would hit 0 — treat as remove */
+            removeRow($btn, $row, itemId);
+            return;
         }
-    }
 
-    // Function to refresh cart totals from the server
-    function refreshCartTotals() {
-        fetch('/get-cart-totals') // Assuming this route returns { totalCartPrice: ..., totalDiscountAmount: ... }
-            .then(response => response.json())
-            .then(data => {
-                const subtotalElement = document.querySelector('.subtotal');
-                const discountElement = document.querySelector('.discount');
-                const savingElement = document.querySelector('.text-center.bg-primary.text-white.rounded.py-1.fw-semibold.mb-3.small');
+        var newQty = currentQty - 1;
+        $btn.prop('disabled', true).addClass('sgc-qty-btn--loading');
 
-                if (subtotalElement) {
-                    subtotalElement.setAttribute('data-value', data.totalCartPrice);
-                    subtotalElement.textContent = `Tk. ${parseFloat(data.totalCartPrice).toFixed(2)}`;
-                }
-                if (discountElement) {
-                    discountElement.setAttribute('data-value', data.totalDiscountAmount);
-                    discountElement.textContent = `-Tk. ${parseFloat(data.totalDiscountAmount).toFixed(2)}`;
-                }
-                if (savingElement) {
-                    savingElement.textContent = `You are saving Tk. ${parseFloat(data.totalDiscountAmount).toFixed(2)} in this order.`;
-                }
-
-                const cartItemsCountElement = document.querySelector('.cartItemsCount');
-                if (cartItemsCountElement) {
-                    cartItemsCountElement.textContent = data.cartItemsCount;
-                }
-                updateTotals(); // Recalculate grand total with new subtotal/discount
-            })
-            .catch(error => console.error('Error fetching cart totals:', error));
-    }
-
-    // // âœ… Shipping option change event - FIXED VARIABLE NAME
-    // const shippingOptionInputs = document.querySelectorAll('input[name="shipping-option"]');
-    // if (shippingOptionInputs) {
-    //     shippingOptionInputs.forEach(option => {
-    //         option.addEventListener('change', updateTotals);
-    //     });
-    // }
-
-    // // âœ… Thana change â†’ update billing address
-    // if (thanaSelect && districtSelect) {
-    //     thanaSelect.addEventListener('change', () => {
-    //         const billingAddressTextarea = document.getElementById('billing-address');
-    //         const districtName = districtSelect.options[districtSelect.selectedIndex]?.text || '';
-    //         const thanaName = thanaSelect.options[thanaSelect.selectedIndex]?.text || '';
-
-    //         if (billingAddressTextarea && districtName && thanaName) {
-    //             billingAddressTextarea.value = `${thanaName}, ${districtName}`;
-    //         }
-    //     });
-    // }
-
-    // âœ… Zip code input for showing shipping options
-    if (zipInput) {
-        zipInput.addEventListener('input', function() {
-            const zipCode = this.value.trim();
-            
-            if (zipCode.length > 0) {
-                // Show shipping options
-                if (shippingOptionsContainer) {
-                    shippingOptionsContainer.style.display = 'block';
-                }
-                
-                // Update totals
-                updateTotals();
-            } else {
-                // Hide shipping options if zip code is empty
-                if (shippingOptionsContainer) {
-                    shippingOptionsContainer.style.display = 'none';
-                }
-                
-                // Reset to free shipping and update totals
-                const freeShipping = document.getElementById('free-shipping');
-                if (freeShipping) {
-                    freeShipping.checked = true;
-                }
-                updateTotals();
+        /* Remove once then re-add at newQty to stay in sync with backend */
+        $.ajax({
+            url: "{{ route('cart.remove', '') }}/" + itemId,
+            type: 'GET',
+            success: function () {
+                var productId = $btn.data('product-id');
+                $.ajax({
+                    url: "{{ route('cart.quick.add') }}",
+                    type: 'GET',
+                    data: { id: productId, quantity: newQty },
+                    success: function (res) {
+                        $qtySpan.text(newQty);
+                        var price     = parseFloat($row.data('price'));
+                        var lineTotal = price * newQty;
+                        $row.find('.sgc-line-total').text('৳' + lineTotal.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}));
+                        recalcTotals();
+                        if (res.cartDropdownHtml) {
+                            $('.cart-dropdown .dropdown-box').html(res.cartDropdownHtml);
+                        }
+                    },
+                    complete: function () {
+                        $btn.prop('disabled', false).removeClass('sgc-qty-btn--loading');
+                    }
+                });
+            },
+            error: function () {
+                alert('Could not update quantity. Please try again.');
+                $btn.prop('disabled', false).removeClass('sgc-qty-btn--loading');
             }
         });
-    }
-
-    // âœ… Proceed button click â†’ confirm order
-    if (proceedBtn) {
-        proceedBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const selected = document.querySelector('.paymentMethodSelect:checked');
-            if (!selected) {
-                Swal.fire('Error', 'Please select a payment method.', 'error');
-                return;
-            }
-
-            // Validate required fields
-            const name = document.getElementById('name')?.value;
-            const email = document.getElementById('email')?.value;
-            const mobile = document.getElementById('mobile')?.value;
-            const billingAddress = document.getElementById('billing-address')?.value;
-
-            // if (!name || !email || !mobile || !billingAddress) {
-            if (!name || !mobile || !billingAddress) {
-                Swal.fire('Error', 'Please fill in all required shipping address fields.', 'error');
-                return;
-            }
-
-            if (selected.value === 'online') {
-                const transactionId = document.getElementById('transaction_id')?.value;
-                if (!transactionId) {
-                    Swal.fire('Error', 'Please enter the transaction ID.', 'error');
-                    return;
-                }
-            }
-
-            // Set form action dynamically
-            checkoutForm.action = selected.value === 'cod' ? codRoute : onlineRoute;
-
-            // Dynamically add address fields to the form before submission
-            const fieldsToSubmit = {
-                name: name,
-                email: email,
-                mobile: mobile,
-                billing_address: billingAddress,
-                payment_method: selected.value,
-                transaction_id: selected.value === 'online' ? document.getElementById('transaction_id')?.value : null,
-            };
-
-            for (const [key, value] of Object.entries(fieldsToSubmit)) {
-                let input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = value;
-                checkoutForm.appendChild(input);
-            }
-
-            Swal.fire({
-                title: 'Confirm Order',
-                text: "Do you want to place this order?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, place order',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    checkoutForm.submit();
-                }
-            });
-        });
-    }
-
-    // Listen for a custom event to update totals after cart changes
-    document.addEventListener('cartUpdated', function (e) {
-        refreshCartTotals();
     });
 
-    // Run once on load
-    toggleProceedButton();
-    updateTotals();
-    
+    /* ── REMOVE button ── */
+    $(document).on('click', '.sgc-cart-remove', function (e) {
+        e.preventDefault();
+        var $btn   = $(this);
+        var $row   = $btn.closest('.sgc-cart-row');
+        var itemId = $btn.data('item-id');
+        removeRow($btn, $row, itemId);
+    });
+
+    function removeRow($btn, $row, itemId) {
+        $btn.addClass('sgc-removing');
+        $.ajax({
+            url: "{{ route('cart.remove', '') }}/" + itemId,
+            type: 'GET',
+            success: function (res) {
+                $row.addClass('sgc-row--removing');
+                setTimeout(function () {
+                    $row.remove();
+                    recalcTotals();
+
+                    /* if cart is now empty, show empty state */
+                    if ($('#sgc-cart-tbody .sgc-cart-row').length === 0) {
+                        location.reload();
+                    }
+
+                    if (res.cartDropdownHtml) {
+                        $('.cart-dropdown .dropdown-box').html(res.cartDropdownHtml);
+                    }
+                    if (res.cartCount !== undefined) {
+                        $('.cart-count').text(res.cartCount);
+                    }
+                }, 350);
+            },
+            error: function () {
+                alert('Could not remove item. Please try again.');
+                $btn.removeClass('sgc-removing');
+            }
+        });
+    }
 
 });
 </script>
-
-
 @endpush
-@endsection 
+
+@push('css')
+<style>
+/* ================================================================
+   SGC — Sungoods Checkout  |  Luxury Refined Aesthetic
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+    --sgc-ink:       #1a1a1a;
+    --sgc-ink-2:     #4a4a4a;
+    --sgc-ink-3:     #8a8a8a;
+    --sgc-primary:   #1E5891;
+    --sgc-primary-dk:#174878;
+    --sgc-primary-lt:#e8f0f9;
+    --sgc-secondary: #DD391F;
+    --sgc-secondary-lt:#fdecea;
+    --sgc-cream:     #f4f7fb;
+    --sgc-white:     #ffffff;
+    --sgc-border:    #dde6f0;
+    --sgc-shadow:    0 4px 24px rgba(30,88,145,0.08);
+    --sgc-shadow-lg: 0 12px 48px rgba(30,88,145,0.14);
+    --sgc-radius:    12px;
+    --sgc-font-body: 'DM Sans', sans-serif;
+    --sgc-font-disp: 'Cormorant Garamond', Georgia, serif;
+    --sgc-transition: 0.25s ease;
+}
+
+/* ── Reset inside page ── */
+.sgc-page * { box-sizing: border-box; }
+.sgc-page { font-family: var(--sgc-font-body); color: var(--sgc-ink); background: var(--sgc-cream); }
+
+/* ── Hero Strip ── */
+.sgc-hero {
+    background: linear-gradient(135deg, #174878 0%, var(--sgc-primary) 60%, #2a6faa 100%);
+    padding: 52px 0 44px;
+    position: relative;
+    overflow: hidden;
+}
+.sgc-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 40px,
+        rgba(255,255,255,0.025) 40px,
+        rgba(255,255,255,0.025) 41px
+    );
+}
+.sgc-hero__inner { position: relative; }
+.sgc-hero__eyebrow {
+    font-family: var(--sgc-font-body);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    margin: 0 0 8px;
+}
+.sgc-hero__title {
+    font-family: var(--sgc-font-disp);
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--sgc-white);
+    margin: 0 0 28px;
+    line-height: 1.1;
+}
+
+/* Steps */
+.sgc-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.sgc-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: rgba(255,255,255,0.35);
+    transition: color var(--sgc-transition);
+}
+.sgc-step__num {
+    font-family: var(--sgc-font-disp);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+}
+.sgc-step__label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.sgc-step--done { color: rgba(255,255,255,0.55); }
+.sgc-step--active { color: #fff; font-weight: 700; border-bottom: 2px solid rgba(255,255,255,0.6); padding-bottom: 2px; }
+.sgc-step__line {
+    flex: 0 0 48px;
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+    margin: 0 16px;
+}
+
+/* ── Body ── */
+.sgc-body { padding-top: 40px; padding-bottom: 80px; }
+
+/* ── Banners ── */
+.sgc-banners {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 36px;
+}
+@media(max-width:767px){ .sgc-banners { grid-template-columns: 1fr; } }
+
+.sgc-banner {
+    background: var(--sgc-white);
+    border: 1px solid var(--sgc-border);
+    border-radius: var(--sgc-radius);
+    overflow: hidden;
+}
+.sgc-banner__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--sgc-ink);
+    user-select: none;
+}
+.sgc-banner__bar i:first-child { color: var(--sgc-primary); font-size: 16px; }
+.sgc-banner__bar strong { color: var(--sgc-primary); }
+.sgc-banner__arrow {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--sgc-ink-3);
+    transition: transform var(--sgc-transition);
+}
+.sgc-banner__arrow--open { transform: rotate(180deg); }
+.sgc-banner__panel {
+    display: none;
+    padding: 20px 24px 24px;
+    border-top: 1px solid var(--sgc-border);
+    background: var(--sgc-cream);
+}
+
+/* ── Card ── */
+.sgc-card {
+    background: var(--sgc-white);
+    border: 1px solid var(--sgc-border);
+    border-radius: var(--sgc-radius);
+    overflow: hidden;
+    margin-bottom: 28px;
+    box-shadow: var(--sgc-shadow);
+}
+.sgc-card__head {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--sgc-border);
+    background: var(--sgc-white);
+}
+.sgc-card__tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--sgc-primary);
+    margin-bottom: 4px;
+}
+.sgc-card__title {
+    font-family: var(--sgc-font-disp);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--sgc-ink);
+}
+.sgc-card__body { padding: 28px; }
+
+/* ── Table ── */
+.sgc-table-wrap { overflow-x: auto; }
+.sgc-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.sgc-table thead th {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sgc-ink-3);
+    background: var(--sgc-cream);
+    border-bottom: 1px solid var(--sgc-border);
+}
+.sgc-table thead th.text-right { text-align: right; }
+.sgc-table tbody tr { border-bottom: 1px solid var(--sgc-border); transition: background var(--sgc-transition); }
+.sgc-table tbody tr:last-child { border-bottom: none; }
+.sgc-table tbody tr:hover { background: rgba(184,150,90,0.03); }
+.sgc-table td { padding: 16px 20px; font-size: 14px; vertical-align: middle; }
+
+.sgc-product-cell { display: flex; align-items: center; gap: 14px; }
+.sgc-product-cell__img {
+    width: 56px; height: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--sgc-border);
+    flex-shrink: 0;
+}
+.sgc-product-cell__img img { width: 100%; height: 100%; object-fit: cover; }
+.sgc-product-cell__name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--sgc-ink);
+    text-decoration: none;
+    line-height: 1.4;
+}
+.sgc-product-cell__name:hover { color: var(--sgc-primary); }
+
+.sgc-price { font-size: 14px; color: var(--sgc-ink-2); }
+.sgc-price--bold { font-weight: 700; color: var(--sgc-ink); }
+.text-right { text-align: right; }
+
+.sgc-qty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--sgc-primary-lt);
+    color: var(--sgc-primary);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ── Two-column Grid ── */
+.sgc-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 28px;
+    align-items: start;
+}
+@media(max-width:1023px){ .sgc-grid { grid-template-columns: 1fr; } }
+
+/* ── Aside sticky (pure CSS, no JS plugin) ── */
+.sgc-grid__aside {
+    /* sit sticky relative to the scroll container */
+    position: sticky;
+    top: 90px;
+    /* must NOT use sticky-sidebar-wrapper JS here */
+}
+.sgc-aside-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ── Fields ── */
+.sgc-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.sgc-field--full { grid-column: 1 / -1; }
+
+.sgc-field { position: relative; }
+.sgc-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--sgc-ink-3);
+    margin-bottom: 8px;
+    transition: color var(--sgc-transition);
+}
+.sgc-field--focused .sgc-label { color: var(--sgc-primary); }
+.req { color: var(--sgc-secondary); }
+.sgc-optional { font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+.sgc-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: var(--sgc-font-body);
+    font-size: 14px;
+    color: var(--sgc-ink);
+    background: var(--sgc-cream);
+    border: 1.5px solid var(--sgc-border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color var(--sgc-transition), box-shadow var(--sgc-transition), background var(--sgc-transition);
+    appearance: none;
+}
+.sgc-input:focus {
+    background: var(--sgc-white);
+    border-color: var(--sgc-primary);
+    box-shadow: 0 0 0 3px rgba(30,88,145,0.12);
+}
+.sgc-textarea { resize: vertical; min-height: 90px; }
+
+/* ── Summary ── */
+.sgc-summary {
+    background: var(--sgc-white);
+    border: 1px solid var(--sgc-border);
+    border-radius: var(--sgc-radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--sgc-shadow);
+}
+.sgc-summary__title {
+    font-family: var(--sgc-font-disp);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    color: var(--sgc-ink);
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--sgc-border);
+}
+.sgc-summary__rows { margin-bottom: 16px; }
+.sgc-summary__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 14px;
+    border-bottom: 1px dashed var(--sgc-border);
+    color: var(--sgc-ink-2);
+}
+.sgc-summary__row strong { color: var(--sgc-ink); font-weight: 600; }
+.sgc-summary__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 16px;
+}
+.sgc-summary__total span {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sgc-ink-3);
+}
+.sgc-summary__total strong {
+    font-family: var(--sgc-font-disp);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--sgc-secondary);
+}
+
+/* ── Payment ── */
+.sgc-payment {
+    background: var(--sgc-white);
+    border: 1px solid var(--sgc-border);
+    border-radius: var(--sgc-radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--sgc-shadow);
+}
+.sgc-payment__heading {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--sgc-ink-3);
+    margin: 0 0 16px;
+}
+.sgc-payment__option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--sgc-border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color var(--sgc-transition), background var(--sgc-transition), box-shadow var(--sgc-transition);
+    position: relative;
+}
+.sgc-payment__option--active {
+    border-color: var(--sgc-primary);
+    background: var(--sgc-primary-lt);
+    box-shadow: 0 2px 12px rgba(30,88,145,0.10);
+}
+.sgc-payment__radio { display: none; }
+.sgc-payment__icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--sgc-cream);
+    border: 1px solid var(--sgc-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    color: var(--sgc-ink-3);
+    flex-shrink: 0;
+    transition: background var(--sgc-transition), color var(--sgc-transition);
+}
+.sgc-payment__option--active .sgc-payment__icon { background: var(--sgc-primary); color: #fff; border-color: var(--sgc-primary); }
+.sgc-payment__icon--bkash { }
+.sgc-payment__meta { flex: 1; }
+.sgc-payment__meta strong { display: block; font-size: 14px; font-weight: 600; color: var(--sgc-ink); }
+.sgc-payment__meta small { font-size: 12px; color: var(--sgc-ink-3); }
+.sgc-payment__check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--sgc-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    color: transparent;
+    transition: all var(--sgc-transition);
+}
+.sgc-payment__option--active .sgc-payment__check {
+    background: var(--sgc-primary);
+    border-color: var(--sgc-primary);
+    color: #fff;
+}
+.sgc-payment__detail {
+    background: var(--sgc-cream);
+    border: 1px solid var(--sgc-border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--sgc-ink-2);
+    line-height: 1.6;
+}
+.sgc-payment__detail p { margin: 0 0 8px; }
+.sgc-payment__detail p:last-child { margin-bottom: 0; }
+.sgc-payment__merchant {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sgc-ink);
+}
+.sgc-payment__merchant i { color: var(--sgc-primary); margin-right: 4px; }
+
+/* ── Terms ── */
+.sgc-terms {
+    padding: 0 0 20px;
+}
+.sgc-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+.sgc-checkbox input { display: none; }
+.sgc-checkbox__box {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border: 2px solid var(--sgc-border);
+    border-radius: 5px;
+    background: var(--sgc-white);
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--sgc-transition);
+    position: relative;
+    top: 1px;
+}
+.sgc-checkbox input:checked ~ .sgc-checkbox__box {
+    background: var(--sgc-primary);
+    border-color: var(--sgc-primary);
+}
+.sgc-checkbox input:checked ~ .sgc-checkbox__box::after {
+    content: '';
+    display: block;
+    width: 5px; height: 9px;
+    border: 2px solid #fff;
+    border-top: 0; border-left: 0;
+    transform: rotate(45deg);
+    margin-top: -2px;
+}
+.sgc-checkbox__text { font-size: 13px; color: var(--sgc-ink-2); line-height: 1.5; }
+
+/* ── Buttons ── */
+.sgc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    font-family: var(--sgc-font-body);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--sgc-white);
+    background: var(--sgc-primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background var(--sgc-transition), transform var(--sgc-transition), box-shadow var(--sgc-transition);
+}
+.sgc-btn:hover { background: var(--sgc-primary-dk); color: #fff; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,88,145,0.25); }
+.sgc-btn--sm { padding: 9px 20px; font-size: 12px; }
+.sgc-btn--submit {
+    width: 100%;
+    justify-content: center;
+    background: var(--sgc-secondary);
+    font-size: 14px;
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(221,57,31,0.25);
+    margin-bottom: 20px;
+}
+.sgc-btn--submit:hover { background: #bf2f16; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(221,57,31,0.35); }
+
+/* ── Trust Badges ── */
+.sgc-trust {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--sgc-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--sgc-white);
+}
+.sgc-trust__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    font-size: 11px;
+    color: var(--sgc-ink-3);
+    text-align: center;
+    border-right: 1px solid var(--sgc-border);
+}
+.sgc-trust__item:last-child { border-right: none; }
+.sgc-trust__item i { font-size: 16px; color: var(--sgc-primary); }
+.sgc-trust__item span { font-weight: 600; letter-spacing: 0.3px; }
+
+/* ── Empty ── */
+.sgc-empty {
+    text-align: center;
+    background: var(--sgc-white);
+    border: 1px solid var(--sgc-border);
+    border-radius: var(--sgc-radius);
+    padding: 80px 40px;
+    box-shadow: var(--sgc-shadow);
+}
+.sgc-empty__icon { font-size: 64px; color: var(--sgc-border); margin-bottom: 20px; }
+.sgc-empty__title {
+    font-family: var(--sgc-font-disp);
+    font-size: 30px; font-weight: 700;
+    margin-bottom: 12px;
+}
+.sgc-empty__text { color: var(--sgc-ink-2); margin-bottom: 32px; }
+
+/* ── Inline Forms ── */
+.sgc-inline-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.sgc-inline-form__actions { grid-column: 1/-1; display: flex; align-items: center; gap: 20px; }
+.sgc-coupon-form { display: flex; gap: 12px; align-items: flex-end; }
+.sgc-coupon-form .sgc-input { margin: 0; }
+.sgc-link { color: var(--sgc-primary); text-decoration: none; font-weight: 600; }
+.sgc-link:hover { text-decoration: underline; }
+
+/* ── Qty Controls ── */
+.sgc-qty-ctrl {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--sgc-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--sgc-white);
+}
+.sgc-qty-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sgc-ink-3);
+    font-size: 11px;
+    transition: background var(--sgc-transition), color var(--sgc-transition);
+    flex-shrink: 0;
+}
+.sgc-qty-btn:hover {
+    background: var(--sgc-primary-lt);
+    color: var(--sgc-primary);
+}
+.sgc-qty-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.sgc-qty-btn--loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.sgc-qty-val {
+    min-width: 36px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--sgc-ink);
+    padding: 0 4px;
+    border-left: 1.5px solid var(--sgc-border);
+    border-right: 1.5px solid var(--sgc-border);
+    line-height: 32px;
+    display: inline-block;
+}
+
+/* ── Remove Button ── */
+.sgc-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid #fdd;
+    background: var(--sgc-secondary-lt);
+    color: var(--sgc-secondary);
+    font-size: 13px;
+    text-decoration: none;
+    transition: background var(--sgc-transition), border-color var(--sgc-transition), transform var(--sgc-transition);
+}
+.sgc-remove-btn:hover {
+    background: var(--sgc-secondary);
+    border-color: var(--sgc-secondary);
+    color: #fff;
+    transform: scale(1.08);
+}
+.sgc-remove-btn.sgc-removing {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+/* ── Row remove animation ── */
+.sgc-cart-row {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.sgc-cart-row.sgc-row--removing {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+/* ── Mobile ── */
+@media(max-width:575px){
+    .sgc-hero__title { font-size: 30px; }
+    .sgc-steps { flex-wrap: wrap; gap: 8px; }
+    .sgc-step__line { display: none; }
+    .sgc-fields { grid-template-columns: 1fr; }
+    .sgc-inline-form { grid-template-columns: 1fr; }
+}
+</style>
+@endpush

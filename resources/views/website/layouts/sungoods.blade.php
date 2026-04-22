@@ -35,6 +35,63 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('sungoods/css/demo1.min.css') }}">
     
     @stack('css')
+    <style>
+        .search-results-wrapper {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            text-decoration: none !important;
+        }
+        .search-result-item:hover {
+            background: #f9f9f9;
+        }
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .search-result-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+        .search-result-item .info {
+            flex: 1;
+        }
+        .search-result-item .name {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .search-result-item .price {
+            font-size: 13px;
+            color: #222;
+            font-weight: 600;
+        }
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body class="@yield('body_class', 'home')">
@@ -74,11 +131,13 @@
                 <span>Search</span>
             </a>
             <form action="{{ route('search') }}" method="GET" class="input-wrapper">
-                <input type="text" class="form-control" name="parameter" placeholder="Search your keyword..."
-                    required />
+                <input type="text" class="form-control mobile-search-input" name="parameter" placeholder="Search your keyword..."
+                    required autocomplete="off" />
                 <button class="btn btn-search" type="submit">
                     <i class="d-icon-search"></i>
                 </button>
+                <div class="search-results-wrapper shadow-sm mobile-search-results" style="display: none;">
+                </div>
             </form>
         </div>
     </div>
@@ -94,11 +153,13 @@
         <!-- End of CloseButton -->
         <div class="mobile-menu-container scrollable">
             <form action="{{ route('search') }}" method="GET" class="input-wrapper">
-                <input type="text" class="form-control" name="parameter" placeholder="Search your keyword..."
-                    required />
+                <input type="text" class="form-control mobile-search-input" name="parameter" placeholder="Search your keyword..."
+                    required autocomplete="off" />
                 <button class="btn btn-search" type="submit">
                     <i class="d-icon-search"></i>
                 </button>
+                <div class="search-results-wrapper shadow-sm mobile-search-results" style="display: none;">
+                </div>
             </form>
             <!-- End of Search Form -->
             <ul class="mobile-menu mmenu-anim">
@@ -106,10 +167,19 @@
                     <a href="{{ route('home') }}">Home</a>
                 </li>
                 <li>
-                    <a href="{{ route('shop') }}">Categories</a>
+                    <a href="#">Categories</a>
                     <ul>
                         @foreach($productCategories as $cat)
-                        <li><a href="{{ route('productCategory', $cat->slug) }}">{{ $cat->name_en }}</a></li>
+                        <li>
+                            <a href="{{ route('productCategory', $cat->slug) }}" class="d-flex align-items-center py-2">
+                                <img src="{{ route('imagecache', ['template' => 'thumbnail', 'filename' => $cat->fi()]) }}" 
+                                     alt="{{ $cat->name_en }}" 
+                                     width="30" height="30" 
+                                     class="mr-3 rounded shadow-sm"
+                                     style="object-fit: cover; border: 1px solid #eee;">
+                                {{ $cat->name_en }}
+                            </a>
+                        </li>
                         @endforeach
                     </ul>
                 </li>
@@ -138,7 +208,162 @@
     <!-- Main JS File -->
     <script src="{{ asset('sungoods/js/main.min.js') }}"></script>
 
+    @include('sweetalert::alert')
+
+    <script>
+        $(document).on("click", ".add-to-cart-btn", function (e) {
+            e.preventDefault();
+            let id = $(this).data("id");
+            let qty = $(this).closest('.product-form-group').find('.quantity').val() || 1;
+
+            $.ajax({
+                url: "{{ route('cart.quick.add') }}",
+                type: "GET",
+                data: { id: id, quantity: qty },
+                success: function (res) {
+                    if (typeof Riode !== 'undefined' && Riode.Minipopup) {
+                        Riode.Minipopup.open({
+                            message: 'Successfully added to cart',
+                            productClass: ' product-cart',
+                            name: res.name,
+                            nameLink: "{{ route('productDetails', '') }}/" + res.slug,
+                            imageSrc: res.image,
+                            imageLink: "{{ route('productDetails', '') }}/" + res.slug,
+                            price: '৳' + res.price,
+                            count: qty,
+                            actionTemplate: '<div class="action-group d-flex mt-3"><a href="{{ route("new.checkout") }}" class="btn btn-sm btn-outline btn-primary btn-rounded mr-2">View Cart</a><a href="{{ route("new.checkout") }}" class="btn btn-sm btn-primary btn-rounded">Check Out</a></div>'
+                        });
+                    }
+                    
+                    if(res.cartCount !== undefined) {
+                        $(".cart-count").text(res.cartCount);
+                    }
+                    if(res.cartTotal !== undefined) {
+                        $(".cart-price").text('৳' + parseFloat(res.cartTotal).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    }
+                    if(res.cartDropdownHtml) {
+                        $(".cart-dropdown .dropdown-box").html(res.cartDropdownHtml);
+                    }
+                }
+            });
+        });
+
+        $(document).on("click", ".cart-dropdown .btn-close", function (e) {
+            e.preventDefault();
+            let removeUrl = $(this).attr('href');
+            
+            $.ajax({
+                url: removeUrl,
+                type: "GET",
+                success: function (res) {
+                    if(res.cartCount !== undefined) {
+                        $(".cart-count").text(res.cartCount);
+                    }
+                    if(res.cartTotal !== undefined) {
+                        $(".cart-price").text('৳' + parseFloat(res.cartTotal).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    }
+                    if(res.cartDropdownHtml) {
+                        $(".cart-dropdown .dropdown-box").html(res.cartDropdownHtml);
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.add-to-wishlist', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+
+            $.ajax({
+                url: "{{ route('wishlist.add') }}",
+                type: "POST",
+                data: {
+                    product_id: id,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(res) {
+                    // Check if theme has its own popup for wishlist or use simple alert
+                    if (typeof Riode !== 'undefined' && Riode.Minipopup) {
+                        Riode.Minipopup.open({
+                            message: res.message,
+                            productClass: ' product-cart',
+                            name: 'Wishlist Update',
+                            actionTemplate: '<div class="action-group d-flex mt-3"><a href="{{ route("wishlist.index") }}" class="btn btn-sm btn-primary btn-rounded">View Wishlist</a></div>'
+                        });
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            let searchTimer;
+            const $searchInput = $('#search-input');
+            const $searchResults = $('#search-results');
+            const $mobileSearchInputs = $('.mobile-search-input');
+
+            function performSearch(query, $container) {
+                if (query.length < 2) {
+                    $container.hide().empty();
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('search.ajax') }}",
+                    data: { parameter: query },
+                    success: function(data) {
+                        $container.empty();
+                        if (data.length > 0) {
+                            data.forEach(function(product) {
+                                $container.append(`
+                                    <a href="${product.url}" class="search-result-item">
+                                        <img src="${product.image}" alt="${product.name}">
+                                        <div class="info">
+                                            <span class="name">${product.name}</span>
+                                            <span class="price">${product.price_html}</span>
+                                        </div>
+                                    </a>
+                                `);
+                            });
+                            $container.show();
+                        } else {
+                            $container.append('<div class="no-results">No products found</div>');
+                            $container.show();
+                        }
+                    }
+                });
+            }
+
+            $searchInput.on('input', function() {
+                clearTimeout(searchTimer);
+                const query = $(this).val();
+                searchTimer = setTimeout(function() {
+                    performSearch(query, $searchResults);
+                }, 300);
+            });
+
+            $mobileSearchInputs.on('input', function() {
+                clearTimeout(searchTimer);
+                const query = $(this).val();
+                const $container = $(this).siblings('.search-results-wrapper');
+                searchTimer = setTimeout(function() {
+                    performSearch(query, $container);
+                }, 300);
+            });
+
+            // Close results when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.header-search').length) {
+                    $('.search-results-wrapper').hide();
+                }
+            });
+        });
+    </script>
+
     @stack('js')
+    
 </body>
 
 </html>

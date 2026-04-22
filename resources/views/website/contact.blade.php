@@ -1,166 +1,248 @@
-@extends('website.layouts.master')
+@extends('website.layouts.sungoods')
 
-@section('title', 'Contact Us - ' . config('app.name'))
+@section('title', 'Contact Us - ' . ($ws->name ?? env('APP_NAME')))
+
+@section('body_class', 'contact-us')
+
 @section('meta')
-    <meta name="description" content="Contact North Bengal for inquiries, product details, or business queries. Get in touch via phone, email, or visit our office.">
-    <meta name="keywords" content="contact north bengal, contact us, north bengal inquiries, phone, email, office location">
-    <meta property="og:title" content="Contact Us - North Bengal">
-    <meta property="og:description" content="Reach North Bengal for product inquiries or business partnerships.">
-    <meta property="og:image" content="{{ asset('frontend/assets/img/northbengal/contact_banner.png') }}">
+    <meta name="description" content="Contact us for inquiries, support, or business partnerships. Get in touch with our team today.">
+    <meta name="keywords" content="contact, support, customer service, help desk, business inquiries">
+    <meta property="og:title" content="Contact Us - {{ $ws->name ?? env('APP_NAME') }}">
+    <meta property="og:description" content="Get in touch with our team for any inquiries or support.">
     <meta property="og:type" content="website">
 @endsection
 
+@push('css')
+<link rel="stylesheet" type="text/css" href="{{ asset('sungoods/css/style.min.css') }}">
+@endpush
+
 @section('content')
-
-<style>
-    
-</style>
-<!-- BREADCRUMB AREA START -->
-<x-breadcrumb title="Contact Us" pageName="Contact Us" bgImage="frontend/img/bg/9.jpg" />
-<!-- BREADCRUMB AREA END -->
-
-<!-- CONTACT ADDRESS AREA START -->
-<div class="ltn__contact-address-area mb-90">
+<nav class="breadcrumb-nav">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-4">
-                <div class="ltn__contact-address-item ltn__contact-address-item-3 box-shadow">
-                    <div class="ltn__contact-address-icon">
-                        <img src="{{ asset('frontend/img/icons/10.png') }}" alt="Icon Image">
-                    </div>
-                    <h3>Email Address</h3>
-                    <p>{{ $ws->contact_email }} </p>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="ltn__contact-address-item ltn__contact-address-item-3 box-shadow">
-                    <div class="ltn__contact-address-icon">
-                        <img src="{{ asset('frontend/img/icons/11.png') }}" alt="Icon Image">
-                    </div>
-                    <h3>Phone Number</h3>
-                    <p>{{ $ws->contact_mobile }}</p>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="ltn__contact-address-item ltn__contact-address-item-3 box-shadow">
-                    <div class="ltn__contact-address-icon">
-                        <img src="{{ asset('frontend/img/icons/12.png') }}" alt="Icon Image">
-                    </div>
-                    <h3>Office Address</h3>
-                    <p>{{ $ws->contact_address }}</p>
-                </div>
-            </div>
-        </div>
+        <ul class="breadcrumb">
+            <li><a href="{{ route('home') }}"><i class="d-icon-home"></i></a></li>
+            <li>{{ 'Contact Us' }}</li>
+        </ul>
     </div>
+</nav>
+<div class="page-header" style="background-image: url({{ asset('sungoods/images/page-header/contact-us.jpg') }})">
+    <h1 class="page-title font-weight-bold text-capitalize ls-l">Contact Us</h1>
 </div>
-<!-- CONTACT ADDRESS AREA END -->
 
-<!-- CONTACT MESSAGE AREA START -->
-<div class="ltn__contact-message-area mb-120 mb--100">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="ltn__form-box contact-form-box box-shadow white-bg">
-                    <h4 class="title-2">Help Desk Form</h4>
-                    @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
+<div class="page-content mt-10 pt-5">
+    <section class="contact-from-section">
+        <div class="container">
+            <header class="section-header with-subtitle text-center">
+                <h3 class="section-subtitle text-uppercase">Contact Us</h3>
+                <h2 class="section-title">Let’s Keep In Touch</h2>
+                <p class="section-desc">Do you have a question or some feedback? We’d love to hear from you.
+                </p>
+            </header>
+            
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
 
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+            <div class="row">
+                <div class="col-md-5 ls-m pb-10">
+                    <div class="grey-section d-flex align-items-center h-100">
+                        <div>
+                            <h4 class="mb-2 text-capitalize">Office Address</h4>
+                            <p>{{ $ws->contact_address ?? '121 King Street, Melbourne Victoria 3000 Australia' }}</p>
+
+                            <h4 class="mb-2 text-capitalize">Phone Number</h4>
+                            <p>
+                                <a href="tel:{{ $ws->contact_mobile ?? '#' }}">{{ $ws->contact_mobile ?? '1-800-456-789' }}</a>
+                            </p>
+
+                            <h4 class="mb-2 text-capitalize">Email</h4>
+                            <p class="mb-4">
+                                <a href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'support@example.com' }}</a><br>
+                                <a href="#">Help Center</a>
+                            </p>
                         </div>
-                    @endif
-
-                    <form id="contact-form" action="{{ route('contact.store') }}" method="post">
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <form id="contact-form" action="{{ route('contact.store') }}" method="post" class="pl-lg-10">
                         @csrf
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="input-item input-item-name ltn__custom-icon">
-                                    <input type="text" name="name" placeholder="Enter your name">
-                                </div>
+                            <div class="col-md-6 mb-4">
+                                <input type="text" name="name" class="form-control" placeholder="Name*" value="{{ old('name') }}" required>
                             </div>
-                            <div class="col-md-6">
-                                <div class="input-item input-item-email ltn__custom-icon">
-                                    <input type="email" name="email" placeholder="Enter email address">
-                                </div>
+                            <div class="col-md-6 mb-4">
+                                <input type="email" name="email" class="form-control" placeholder="Email*" value="{{ old('email') }}" required>
                             </div>
-                            <div class="col-md-6">
-                                <div class="input-item">
-                                    <select class="nice-select" name="subject">
-                                        <option value="">Select Service Type</option>
-                                        <option value="Transport">Transport</option>
-                                        <option value="Product Delay">Product Delay</option>
-                                        <option value="Update Product/Price">Update Product/Price</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
+                            <div class="col-md-6 mb-4">
+                                <input type="text" name="phone" class="form-control" placeholder="Phone*" value="{{ old('phone') }}" required>
                             </div>
-                            <div class="col-md-6">
-                                <div class="input-item input-item-phone ltn__custom-icon">
-                                    <input type="text" name="phone" placeholder="Enter phone number">
-                                </div>
+                            <div class="col-md-6 mb-4">
+                                <select class="form-control" name="subject" required>
+                                    <option value="" {{ old('subject') == '' ? 'selected' : '' }}>Select Service Type</option>
+                                    <option value="Transport" {{ old('subject') == 'Transport' ? 'selected' : '' }}>Transport</option>
+                                    <option value="Product Delay" {{ old('subject') == 'Product Delay' ? 'selected' : '' }}>Product Delay</option>
+                                    <option value="Update Product/Price" {{ old('subject') == 'Update Product/Price' ? 'selected' : '' }}>Update Product/Price</option>
+                                    <option value="Other" {{ old('subject') == 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
                             </div>
+                            <div class="col-lg-12 mb-4">
+                                <textarea name="message" class="form-control" required placeholder="Comment or Message*">{{ old('message') }}</textarea>
+                            </div>
+                            <!-- <div class="col-12 mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="agree" id="agree" {{ old('agree') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="agree">
+                                        Save my name, email, and website in this browser for the next time I comment.
+                                    </label>
+                                </div>
+                            </div> -->
                         </div>
-                        <div class="input-item input-item-textarea ltn__custom-icon">
-                            <textarea name="message" placeholder="Enter message"></textarea>
-                        </div>
-                        <p><label class="input-info-save mb-0"><input type="checkbox" name="agree"> Save my name, email, and website in this browser for the next time I comment.</label></p>
-                        <div class="btn-wrapper mt-0">
-                            <button class="btn theme-btn-1 btn-effect-1 text-uppercase" type="submit">Submit For Help</button>
-                        </div>
-                        <p class="form-messege mb-0 mt-20"></p>
+                        <button type="submit" class="btn btn-dark btn-rounded">Send Message<i class="d-icon-arrow-right"></i></button>
                     </form>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<!-- CONTACT MESSAGE AREA END -->
-<br>
-<!-- GOOGLE MAP AREA START -->
-<div class="google-map mb-120">
-    <div class="map-container">
-        <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14602.79920425715!2d90.39505561023496!3d23.793702090776875!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c70e61c0dcf3%3A0xfc162eac4282aa4a!2sDhaka%201213!5e0!3m2!1sen!2sbd!4v1763294719745!5m2!1sen!2sbd" 
-            frameborder="0" 
-            allowfullscreen="" 
-            aria-hidden="false" 
-            tabindex="0">
-        </iframe>
-    </div>
-</div>
-<!-- GOOGLE MAP AREA END -->
+    </section>
 
+    <!-- <section class="store-section mt-10 pt-10 pb-10 border-top">
+        <div class="container">
+            <h2 class="section-title banner-title-f text-center ls-m mb-8">Our Store</h2>
+            <div class="row cols-sm-2 cols-lg-4">
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-1.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">New York</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-2.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">London</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-3.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">Oslo</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+                <div class="store">
+                    <figure>
+                        <img src="{{ asset('sungoods/images/subpages/store-4.jpg') }}" alt="Store" width="280" height="280">
+                        <h4 class="overlay-visible">Stockholm</h4>
+                        <div class="overlay overlay-transparent">
+                            <a class="mt-8" href="mailto:{{ $ws->contact_email ?? '#' }}">{{ $ws->contact_email ?? 'info@example.com' }}</a>
+                            <a href="tel:{{ $ws->contact_mobile ?? '#' }}">Phone: {{ $ws->contact_mobile ?? '(123) 456-7890' }}</a>
+                            <div class="social-links mt-1">
+                                <a href="#" class="social-link social-facebook fab fa-facebook-f"></a>
+                                <a href="#" class="social-link social-twitter fab fa-twitter"></a>
+                                <a href="#" class="social-link social-linkedin fab fa-linkedin-in"></a>
+                            </div>
+                        </div>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+<!-- Google Maps Section -->
+<div class="grey-section google-map" id="googlemaps" style="height: 386px; overflow: hidden;">
+    
+    <iframe 
+        src="{{ $ws->iframe_map ?? '#' }}"
+        width="100%" 
+        height="100%" 
+        style="border:0;"
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+
+</div>
+<!-- End Map Section -->
+</div>
 @endsection
 
-@push('css')
-<style>
-.map-container {
-    width: 100%;
-    /* max-width: 800px;  */
-      /* max width of map */
-    height: 400px;      /* height of map */
-    margin: 0 auto;     /* center map */
-    border-radius: 8px; /* optional rounded corners */
-    overflow: hidden;
-}
+@push('js')
+{{--<script src="{{ asset('sungoods/vendor/jquery.gmap/jquery.gmap.min.js') }}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key="></script>--}}
+<script>
+    /*
+    Map Settings
+        Find the Latitude and Longitude of your address:
+            - https://www.latlong.net/
+            - http://www.findlatitudeandlongitude.com/find-address-from-latitude-and-longitude/
+    */
 
-.map-container iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-}
+    // Map Markers
+    var mapMarkers = [ {
+        address: "New York, NY 10017",
+        html: "<strong>New York Office<\/strong><br>New York, NY 10017",
+        popup: true
+    } ];
 
-/* Optional: make responsive for mobile */
-@media (max-width: 767px) {
-    .map-container {
-        height: 300px;
+    // Map Initial Location
+    var initLatitude = 40.75198;
+    var initLongitude = -73.96978;
+
+    // Map Extended Settings
+    var mapSettings = {
+        controls: {
+            draggable: !window.Riode.isMobile,
+            panControl: true,
+            zoomControl: true,
+            mapTypeControl: true,
+            scaleControl: true,
+            streetViewControl: true,
+            overviewMapControl: true
+        },
+        scrollwheel: false,
+        markers: mapMarkers,
+        latitude: initLatitude,
+        longitude: initLongitude,
+        zoom: 11
+    };
+
+    var map = $( '#googlemaps' ).gMap( mapSettings );
+
+    // Map text-center At
+    var mapCenterAt = function ( options, e ) {
+        e.preventDefault();
+        $( '#googlemaps' ).gMap( "centerAt", options );
     }
-}
-</style>
+</script>
 @endpush

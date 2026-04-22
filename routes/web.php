@@ -119,6 +119,7 @@ Route::get('/md-message',[FrontendController::class,'mdMessage'])->name('mdMessa
 Route::get('/testimonial',[FrontendController::class,'testimonial'])->name('testimonial');
 Route::get('/about',[FrontendController::class,'about'])->name('about');
 Route::get('/shop',[FrontendController::class,'shop'])->name('shop');
+Route::get('/all-categories',[FrontendController::class,'allCategories'])->name('allCategories');
 Route::get('/quick-view', [FrontendController::class, 'quickView'])->name('quick.view');
 
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -146,6 +147,7 @@ Route::post('agent/update-profile',[FrontendController::class, 'updateProfile'])
 Route::get('/file/download/{id}',[FrontendController::class,'fileDownload'])->name('files.download');
 
 Route::get('/search',[FrontendController::class,'search'])->name('search');
+Route::get('/search-ajax', [FrontendController::class, 'searchAjax'])->name('search.ajax');
 
 // Route::get('doctor/list',[FrontendController::class,'doctorList'])->name('doctorList');
 Route::get('qurbani/occation',[FrontendController::class,'qurbaniOccation'])->name('qurbani.occation');

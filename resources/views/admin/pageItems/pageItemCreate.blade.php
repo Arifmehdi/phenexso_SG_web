@@ -109,11 +109,12 @@
                                         {{-- Description --}}
                                         <div class="form-group">
                                             <label for="description_en">Description</label>
-                                            <textarea name="description_en" class="summernote form-control" rows="5" placeholder="Description">{{ old('description_en') }}</textarea>
+                                            <textarea name="description_en" class="form-control tinymce-editor" rows="5" placeholder="Description">{{ old('description_en') }}</textarea>
                                             @error('description_en')
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
+
 
                                         {{-- Active & Editor Checkboxes + Submit Button --}}
                                         <div class="form-row mt-n2 mb-n3">
@@ -153,6 +154,15 @@
 @endsection
 
 @push('js')
+<script>
+    tinymce.init({
+        selector: '.tinymce-editor',
+        height: 300,
+        plugins: 'advlist autolink lists link image charmap preview anchor searchreplace verticalbreak code fullscreen insertdatetime media table code help wordcount',
+        toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+    });
+</script>
 <script>
     $(document).ready(function() {
         // Copy URL to clipboard functionality

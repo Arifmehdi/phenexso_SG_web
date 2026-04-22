@@ -32,8 +32,8 @@ class ContactController extends Controller
 
         // // Send email using the saved model
         // $this->sendAppointmentEmails($contact);
-
-        return back()->with('success', 'Your message has been sent successfully!');
+        toast('Your message has been sent successfully!','success');
+        return back();
     }
 
     public function index()
