@@ -1,277 +1,228 @@
-@extends('website.layouts.master')
+@extends('website.layouts.sungoods')
 
 @section('title', 'Cart - '. env('APP_NAME') )
 
-@section('meta')
-<meta name="description"
-    content="Contact North Bengal for inquiries, product details, or business queries. Get in touch via phone, email, or visit our office.">
-<meta name="keywords" content="contact north bengal, contact us, north bengal inquiries, phone, email, office location">
-<meta property="og:title" content="Contact Us - North Bengal">
-<meta property="og:description" content="Reach North Bengal for product inquiries or business partnerships.">
-<meta property="og:image" content="{{ asset('frontend/assets/img/northbengal/contact_banner.png') }}">
-<meta property="og:type" content="website">
+@section('met<meta name="description" content="Cart - North Bengal">
+<meta name="keywords" content="cart, shopping">
 @endsection
+
+@push('css')
+<style>
+.page-content { padding-top: 30px; padding-bottom: 40px; }
+.step-by { display: flex; justify-content: center; gap: 30px; margin-bottom: 40px; }
+.title-step { font-size: 14px; font-weight: 500; }
+.title-step a { color: #999; text-decoration: none; }
+.title-step.active a, .title-step a:hover { color: #333; }
+.title-step.active a { font-weight: 700; }
+.shop-table { width: 100%; border-collapse: collapse; }
+.shop-table thead th { padding: 15px; text-align: left; font-weight: 600; color: #333; border-bottom: 1px solid #eee; }
+.shop-table tbody td { padding: 20px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+.shop-table .product-thumbnail img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
+.shop-table .product-name a { color: #333; font-weight: 500; text-decoration: none; }
+.shop-table .amount { font-weight: 600; color: #333; }
+.cart-actions { display: flex; justify-content: space-between; margin-top: 20px; }
+.cart-summary { background: #f9f9f9; padding: 30px; border-radius: 8px; }
+.order-table { width: 100%; border-collapse: collapse; }
+.order-table th, .order-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
+.summary-total-price { font-size: 18px; font-weight: 700; color: #333; }
+.btn-order { width: 100%; padding: 15px; background: #333; color: #fff; border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; }
+.cart-empty { text-align: center; padding: 60px 20px; }
+.cart-empty p { font-size: 18px; color: #666; margin-bottom: 20px; }
+</style>
+@endpush
+
 @section('content')
 <!-- BREADCRUMB AREA START -->
 <x-breadcrumb title="Cart" pageName="Cart" bgImage="frontend/img/bg/9.jpg" />
 <!-- BREADCRUMB AREA END -->
+
 @php
 $me = Auth::user();
-if($me){
-$dl = $me->locations()->first();
-}
-else{
-$dl = null;
-}
+$dl = $me ? $me->locations()->first() : null;
 $cartTotal = $cart_total ?? $cartItems->sum(fn($item) => $item->price * $item->quantity);
 @endphp
 
 @if($cartItems->isEmpty())
-    <p class="text-center text-muted py-5 fs-5">Your cart is empty </p>
-@else 
-<!-- WISHLIST AREA START -->
-<div class="ltn__checkout-area mb-105">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="ltn__checkout-inner">
-                    <div class="ltn__checkout-single-content ltn__returning-customer-wrap">
-                        <h5>Returning customer? <a class="ltn__secondary-color" href="#ltn__returning-customer-login"
-                                data-bs-toggle="collapse">Click here to login</a></h5>
-                        <div id="ltn__returning-customer-login" class="collapse ltn__checkout-single-content-info">
-                            <div class="ltn_coupon-code-form ltn__form-box">
-                                <p>Please login your accont.</p>
-                                <form action="#">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="input-item input-item-name ltn__custom-icon">
-                                                <input type="text" name="ltn__name" placeholder="Enter your name">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="input-item input-item-email ltn__custom-icon">
-                                                <input type="email" name="ltn__email" placeholder="Enter email address">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button class="btn theme-btn-1 btn-effect-1 text-uppercase">Login</button>
-                                    <label class="input-info-save mb-0"><input type="checkbox" name="agree"> Remember
-                                        me</label>
-                                    <p class="mt-30"><a href="register.html">Lost your password?</a></p>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ltn__checkout-single-content ltn__coupon-code-wrap">
-                        <h5>Have a coupon? <a class="ltn__secondary-color" href="#ltn__coupon-code"
-                                data-bs-toggle="collapse">Click here to enter your code</a></h5>
-                        <div id="ltn__coupon-code" class="collapse ltn__checkout-single-content-info">
-                            <div class="ltn__coupon-code-form">
-                                <p>If you have a coupon code, please apply it below.</p>
-                                <form action="#">
-                                    <input type="text" name="coupon-code" placeholder="Coupon code">
-                                    <button class="btn theme-btn-2 btn-effect-2 text-uppercase">Apply Coupon</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ltn__checkout-single-content mt-50">
-                        <h4 class="title-2">Billing Details</h4>
-                        <div class="ltn__checkout-single-content-info">
-                            <!-- Flash Messages -->
-                            @if(session('success'))
-                                <div class="alert alert-success">{{ session('success') }}</div>
-                            @endif
-                            @if(session('error'))
-                                <div class="alert alert-danger">{{ session('error') }}</div>
-                            @endif
-                            <form id="checkoutForm" method="POST" action="">
-                                @csrf
-                                <h6>Personal Information</h6>
-                                <input type="hidden" name="shipping_price" id="hidden-shipping-price" value="0">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="input-item input-item-name ltn__custom-icon">
-                                            <input type="text" name="ltn__name" placeholder="First name">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-item input-item-name ltn__custom-icon">
-                                            <input type="text" name="ltn__lastname" placeholder="Last name">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-item input-item-email ltn__custom-icon">
-                                            <input type="email" name="ltn__email" placeholder="email address">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-item input-item-phone ltn__custom-icon">
-                                            <input type="text" name="ltn__phone" placeholder="phone number">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-item input-item-website ltn__custom-icon">
-                                            <input type="text" name="ltn__company"
-                                                placeholder="Company name (optional)">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-item input-item-website ltn__custom-icon">
-                                            <input type="text" name="ltn__phone"
-                                                placeholder="Company address (optional)">
-                                        </div>
-                                    </div>
-                                </div>
-                                <p><label class="input-info-save mb-0"><input type="checkbox" name="agree"> Create an
-                                        account?</label></p>
-                                <h6>Order Notes (optional)</h6>
-                                <div class="input-item input-item-textarea ltn__custom-icon">
-                                    <textarea name="ltn__message"
-                                        placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
-                                </div>
+<div class=""cart-empty"">
+    <p>Your cart is empty</p>
+    <a href=""{{ route('shop') }}"" class=""btn btn-dark btn-rounded"">Continue Shopping</a>
+</div>
+@else
+<main class=""main cart checkout"">
+    <div class=""page-content pt-7 pb-10"">
+        <div class=""step-by pr-4 pl-4"">
+            <h3 class=""title title-simple title-step active""><a href=""#"">1. Shopping Cart</a></h3>
+            <h3 class=""title title-simple title-step""><a href=""#"">2. Checkout</a></h3>
+            <h3 class=""title title-simple title-step""><a href=""#"">3. Order Complete</a></h3>
+        </div>
+        
+        <div class=""container mt-7"">
+            @if(session('success'))
+                <div class=""alert alert-success mb-4"">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class=""alert alert-danger mb-4"">{{ session('error') }}</div>
+            @endif
 
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- SHOPING CART AREA START -->
-            <div class="liton__shoping-cart-area mb-120">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="shoping-cart-inner">
-                                <div class="shoping-cart-table table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <th class="cart-product-remove">Remove</th>
-                                            <th class="cart-product-image">Image</th>
-                                            <th class="cart-product-info">Product</th>
-                                            <th class="cart-product-price">Price</th>
-                                            <th class="cart-product-quantity">Quantity</th>
-                                            <th class="cart-product-subtotal">Subtotal</th>
-                                        </thead>
-                                        <tbody>
-                                            @forelse($cartItems as $item)
-                                            <tr id="cart-item-{{ $item->id }}">
-                                                <td class="cart-product-remove">
-                                                    <a href="javascript:void(0);"
-                                                        class="cart-product-remove text-danger"
-                                                        data-id="{{ $item->id }}">x</a>
-                                                </td>
-                                                <td class="cart-product-image">
-                                                    <a href="{{ route('productDetails', $item->product->slug) }}">
-                                                        <img src="{{ route('imagecache', ['template'=>'pnism','filename'=>$item->product->fi()]) }}"
-                                                            alt="{{ $item->product->name_en }}">
-                                                    </a>
-                                                </td>
-                                                <td class="cart-product-info">
-                                                    <h4><a href="{{ route('productDetails', $item->product->slug) }}"
-                                                            title="{{ $item->product->name_en }}">{{ Str::limit($item->product->name_en, 20) }}</a>
-                                                    </h4>
-                                                </td>
-                                                <td class="cart-product-price"
-                                                    data-price="{{ $item->product->final_price }}">
-                                                    {{ number_format($item->product->final_price,2) }} ৳</td>
-                                                <td class="cart-product-quantity">
-                                                    <div class="cart-plus-minus">
-                                                        <input type="number" value="{{ $item->quantity }}"
-                                                            name="qtybutton" class="cart-plus-minus-box"
-                                                            data-id="{{ $item->id }}" min="1">
-                                                    </div>
-                                                </td>
-                                                <td class="cart-product-subtotal" id="subtotal-{{ $item->id }}">
-                                                    {{ number_format($item->quantity * $item->product->final_price,2) }}
-                                                    ৳</td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="6" class="text-center">Your cart is empty!</td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- SHOPING CART AREA END -->
-            <div class="col-lg-6">
-                <div class="ltn__checkout-payment-method mt-50">
-                    <h4 class="title-2">Payment Method</h4>
-                    <div id="checkout_accordion_1">
-                        <!-- card -->
-                        <div class="card">
-                            <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2"
-                                aria-expanded="true">
-                                Cash on delivery <img src="{{ asset('frontend/img/icons/cash.png') }}" alt="#">
-                            </h5>
-                            <div id="faq-item-2-2" class="collapse show" data-parent="#checkout_accordion_1">
-                                <div class="card-body">
-                                    <p>Pay with cash upon delivery.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- card -->
-                        <div class="card">
-                            <h5 class="collapsed ltn__card-title" data-bs-toggle="collapse"
-                                data-bs-target="#faq-item-2-4" aria-expanded="false">
-                                Online Payment <img src="{{ asset('frontend/img/icons/payment-3.png') }}" alt="#">
-                            </h5>
-                            <div id="faq-item-2-4" class="collapse" data-parent="#checkout_accordion_1">
-                                <div class="card-body">
-                                    <p>Pay via Online; you can pay with your credit card if you don’t have a PayPal
-                                        account.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ltn__payment-note mt-30 mb-30">
-                        <p>Your personal data will be used to process your order, support your experience throughout
-                            this website, and for other purposes described in our privacy policy.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="shoping-cart-total mt-50">
-                    <h4 class="title-2">Cart Totals</h4>
-                    <table class="table">
-                        <tbody>
-                            <!-- <tr>
-                                    <td>Vegetables Juices <strong>× 2</strong></td>
-                                    <td>$298.00</td>
-                                </tr>
+            <form id=""checkoutForm"" method=""POST"" action=""""">
+                @csrf
+                <input type=""hidden"" name=""shipping_price"" id=""hidden-shipping-price"" value=""0"">
+                
+                <div class=""row"">
+                    <div class=""col-lg-8 col-md-12 pr-lg-4 mb-6 mb-lg-0"">
+                        <table class=""shop-table cart-table"">
+                            <thead>
                                 <tr>
-                                    <td>Orange Sliced Mix <strong>× 2</strong></td>
-                                    <td>$170.00</td>
-                                </tr> -->
-                            <tr>
-                                <td>Cart Subtotal</td>
-                                <td id="cart-subtotal">{{ number_format($cartSubtotal,2) }} ৳</td>
-                            </tr>
-                            <tr>
-                                <td>Shipping and Handing</td>
-                                <td>{{$ws->shipping_charge ?? '0.00' }} ৳</td>
-                            </tr>
-                            <tr>
-                                <td>Vat</td>
-                                <td>00.00 ৳</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Order Total</strong></td>
-                                <td id="order-total"><strong>{{ number_format($cartSubtotal , 2) }} ৳</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="btn-wrapper text-right text-end mt-3">
-                        <a href="{{ route('checkout') }}" class="theme-btn-1 btn btn-effect-1">Place Order</a>
+                                    <th><span>Product</span></th>
+                                    <th></th>
+                                    <th><span>Price</span></th>
+                                    <th><span>Quantity</span></th>
+                                    <th>Subtotal</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($cartItems as $item)
+                                <tr id=""cart-item-{{ $item->id }}"">
+                                    <td class=""product-thumbnail"">
+                                        <a href=""{{ route('productDetails', $item->product->slug) }}"">
+                                            <img src=""{{ route('imagecache', ['template'=>'pnism','filename'=>$item->product->fi()]) }}"" alt=""{{ $item->product->name_en }}"" width=""80"" height=""80"">
+                                        </a>
+                                    </td>
+                                    <td class=""product-name"">
+                                        <a href=""{{ route('productDetails', $item->product->slug) }}"">{{ Str::limit($item->product->name_en, 30) }}</a>
+                                    </td>
+                                    <td class=""product-subtotal"">
+                                        <span class=""amount"">{{ number_format($item->product->final_price,2) }} ?</span>
+                                    </td>
+                                    <td class=""product-quantity"">
+                                        <input type=""number"" value=""{{ $item->quantity }}"" min=""1"" data-id=""{{ $item->id }}"" class=""form-control"" style=""width: 80px;"">
+                                    </td>
+                                    <td class=""product-price"">
+                                        <span class=""amount"" id=""subtotal-{{ $item->id }}"">{{ number_format($item->quantity * $item->product->final_price,2) }} ?</span>
+                                    </td>
+                                    <td class=""product-close"">
+                                        <a href=""javascript:void(0);"" class=""product-remove"" data-id=""{{ $item->id }}""><i class=""fas fa-times""></i></a>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan=""6"" class=""text-center"">Your cart is empty!</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                        
+                        <div class=""cart-actions mb-6 pt-4"">
+                            <a href=""{{ route('shop') }}"" class=""btn btn-dark btn-md btn-rounded"">Continue Shopping</a>
+                            <button type=""button"" class=""btn btn-outline btn-dark btn-md btn-rounded"" onclick=""updateCart()"">Update Cart</button>
+                        </div>
+
+                        <div class=""billing-form mt-6"">
+                            <h3>Billing Details</h3>
+                            <div class=""row"">
+                                <div class=""col-md-6 mb-3"">
+                                    <label>First Name *</label>
+                                    <input type=""text"" class=""form-control"" name=""first_name"" required>
+                                </div>
+                                <div class=""col-md-6 mb-3"">
+                                    <label>Last Name *</label>
+                                    <input type=""text"" class=""form-control"" name=""last_name"" required>
+                                </div>
+                            </div>
+                            <div class=""row"">
+                                <div class=""col-md-6 mb-3"">
+                                    <label>Email Address *</label>
+                                    <input type=""email"" class=""form-control"" name=""email"" required>
+                                </div>
+                                <div class=""col-md-6 mb-3"">
+                                    <label>Phone Number *</label>
+                                    <input type=""text"" class=""form-control"" name=""phone"" required>
+                                </div>
+                            </div>
+                            <div class=""mb-3"">
+                                <label>Address *</label>
+                                <input type=""text"" class=""form-control"" name=""address"" required>
+                            </div>
+                            <div class=""row"">
+                                <div class=""col-md-6 mb-3"">
+                                    <label>Town / City *</label>
+                                    <input type=""text"" class=""form-control"" name=""city"" required>
+                                </div>
+                                <div class=""col-md-6 mb-3"">
+                                    <label>Post Code *</label>
+                                    <input type=""text"" class=""form-control"" name=""post_code"" required>
+                                </div>
+                            </div>
+                            <div class=""mb-3"">
+                                <label>Order Notes (Optional)</label>
+                                <textarea class=""form-control"" rows=""3"" name=""notes""></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class=""col-lg-4"">
+                        <div class=""cart-summary"">
+                            <h3>Your Order</h3>
+                            <table class=""order-table"">
+                                <tbody>
+                                    @forelse($cartItems as $item)
+                                    <tr>
+                                        <td>{{ Str::limit($item->product->name_en, 25) }} x {{ $item->quantity
+                                     }}</td>
+                           @empty 
+                                   <p>Your cart is empty.</p>              <td>{{ number_format($item->quantity * $item->product->final_price,2) }} ?</td>
+                                    </tr>
+                                    @endforelse
+                                    <tr>
+                                        <td><strong>Subtotal</strong></td>
+                                        <td id=""cart-subtotal"">{{ number_format($cartSubtotal,2) }} ?</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Shipping</strong></td>
+                                        <td>{{ $ws->shipping_charge ?? '0.00' }} ?</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total</strong></td>
+                                        <td class=""summary-total-price"" id=""order-total"">{{ number_format($cartSubtotal + ($ws->shipping_charge ?? 0), 2) }} ?</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class=""mt-4"">
+                                <h4>Payment Methods</h4>
+                                <div class=""form-check mb-2"">
+                                    <input class=""form-check-input"" type=""radio"" name=""payment"" id=""cod"" value=""cod"" checked>
+                                    <label class=""form-check-label"" for=""cod"">Cash on Delivery</label>
+                                </div>
+                                <div class=""form-check mb-3"">
+                                    <input class=""form-check-input"" type=""radio"" name=""payment"" id=""online"" value=""online"">
+                                    <label class=""form-check-label"" for=""online"">Online Payment</label>
+                                </div>
+                            </div>
+
+                            <div class=""form-check mb-4"">
+                                <input type=""checkbox"" class=""form-check-input"" id=""terms-condition"" required>
+                                <label class=""form-check-label"" for=""terms-condition"">I agree to terms & conditions</label>
+                            </div>
+
+                            <button type=""submit"" class=""btn-order"">Place Order</button>
+                        </div>
+                    </aside>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+@endif
+
+<!-- FEATURE AREA START ( Feature - 3) -->
+<x-footer-feature />
+<!-- FEATURE AREA END -->
+@endsection
+
+@push('js')
+">Place Order</a>
                     </div>
                 </div>
             </div>
